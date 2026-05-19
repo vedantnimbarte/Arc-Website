@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ────────────────────────────────────────────────────────────────
+   ARC // DESIGN TOKENS
+   ──────────────────────────────────────────────────────────────── */
+:root {
+  --ink-950: #050505;
+  --ink-900: #0A0A0A;
+  --ink-800: #0D0D0D;
+  --ink-700: #111111;
+  --ink-600: #181818;
+  --ink-500: #1F1F1F;
+  --ink-400: #2B2B2B;
+  --silver-50: #F5F5F5;
+  --silver-100: #E8E8E8;
+  --silver-200: #D6D6D6;
+  --silver-300: #C0C0C0;
+  --silver-400: #9A9A9A;
+  --silver-500: #8A8A8A;
+  --silver-700: #4A4A4A;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ink-950);
+}
+
+body {
+  background-color: var(--ink-950);
+  color: var(--silver-50);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: 'ss01', 'ss02', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(245, 245, 245, 0.92);
+  color: var(--ink-950);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   GRAIN OVERLAY — applied site-wide
+   ──────────────────────────────────────────────────────────────── */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ────────────────────────────────────────────────────────────────
+   BLUEPRINT GRID — subtle technical reference lines
+   ──────────────────────────────────────────────────────────────── */
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.blueprint-fade {
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   METALLIC TEXT — animated brushed-metal gradient fill
+   ──────────────────────────────────────────────────────────────── */
+.metal-text {
+  background: linear-gradient(
+    110deg,
+    #7a7a7a 0%,
+    #d6d6d6 30%,
+    #ffffff 50%,
+    #d6d6d6 70%,
+    #7a7a7a 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmer 8s linear infinite;
+}
+
+.metal-text-static {
+  background: linear-gradient(135deg, #f0f0f0 0%, #b0b0b0 40%, #f5f5f5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   METALLIC BORDER — 1px gradient ring used on cards
+   ──────────────────────────────────────────────────────────────── */
+.metal-border {
+  position: relative;
+  background: linear-gradient(180deg, #0F0F0F 0%, #0A0A0A 100%);
+  border-radius: 1.25rem;
+}
+.metal-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    rgba(220, 220, 220, 0.4) 0%,
+    rgba(80, 80, 80, 0.15) 30%,
+    rgba(40, 40, 40, 0.1) 60%,
+    rgba(180, 180, 180, 0.3) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.metal-border:hover::before {
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(120, 120, 120, 0.2) 30%,
+    rgba(60, 60, 60, 0.15) 60%,
+    rgba(240, 240, 240, 0.5) 100%
+  );
+}
+
+/* corner accents on cards */
+.corner-accents > span {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(192, 192, 192, 0.35);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   TERMINAL BLOCK
+   ──────────────────────────────────────────────────────────────── */
+.terminal-glass {
+  background:
+    linear-gradient(180deg, rgba(20, 20, 20, 0.7) 0%, rgba(8, 8, 8, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  height: 30%;
+  pointer-events: none;
+  animation: scanline 6s linear infinite;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   MARQUEE
+   ──────────────────────────────────────────────────────────────── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   BUTTONS
+   ──────────────────────────────────────────────────────────────── */
+.btn-metal {
+  position: relative;
+  background: linear-gradient(180deg, #ECECEC 0%, #B5B5B5 100%);
+  color: #0a0a0a;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px -8px rgba(0, 0, 0, 0.6);
+}
+.btn-metal:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #C8C8C8 100%);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 16px 36px -10px rgba(220, 220, 220, 0.2);
+}
+.btn-metal:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--silver-100);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   DECORATIVE — section dividers
+   ──────────────────────────────────────────────────────────────── */
+.rule {
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(192, 192, 192, 0.2) 20%,
+    rgba(192, 192, 192, 0.4) 50%,
+    rgba(192, 192, 192, 0.2) 80%,
+    transparent 100%
+  );
+  height: 1px;
+}
+
+/* glow underline appears under hovered nav links */
+.nav-link {
+  position: relative;
+  color: var(--silver-200);
+  transition: color 0.3s;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--silver-100), transparent);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-50%);
+}
+.nav-link:hover {
+  color: white;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   SCROLLBAR
+   ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-900);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
+  border-radius: 5px;
+  border: 2px solid var(--ink-900);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #5a5a5a, #2f2f2f);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ANIMATIONS — used by inline classes
+   ──────────────────────────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 192, 192, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(192, 192, 192, 0); }
+}
+
+@keyframes typewriter {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--silver-200);
+  animation: typewriter 2s steps(40) 1s 1 normal both, blink 1s steps(2) infinite;
+}
+
+/* reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+  }
+}
