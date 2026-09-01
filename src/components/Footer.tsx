@@ -1,93 +1,61 @@
 import Link from "next/link";
+import { REPO, VERSION, RELEASED } from "@/lib/arc";
 
-const columns = [
+const COLUMNS = [
   {
     title: "Product",
     links: [
       { href: "/features", label: "Features" },
-      { href: "/pricing", label: "Pricing" },
       { href: "/download", label: "Download" },
       { href: "/docs", label: "Documentation" },
-      { href: "#", label: "Changelog" },
+      { href: `${REPO}/releases`, label: "Releases" },
     ],
   },
   {
-    title: "Engineering",
+    title: "Source",
     links: [
-      { href: "#", label: "Architecture" },
-      { href: "#", label: "Runtime spec" },
-      { href: "#", label: "Provider matrix" },
-      { href: "#", label: "MCP servers" },
-      { href: "#", label: "Open source" },
+      { href: REPO, label: "Repository" },
+      { href: `${REPO}/blob/main/CONTRIBUTING.md`, label: "Contributing" },
+      { href: `${REPO}/blob/main/SECURITY.md`, label: "Security policy" },
+      { href: `${REPO}/blob/main/LICENSE`, label: "MIT licence" },
     ],
   },
   {
     title: "Community",
     links: [
-      { href: "#", label: "Discord" },
-      { href: "#", label: "GitHub" },
-      { href: "#", label: "Roadmap" },
-      { href: "#", label: "Feature voting" },
-      { href: "#", label: "Discussions" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { href: "#", label: "About" },
-      { href: "#", label: "Contact" },
-      { href: "#", label: "Press kit" },
-      { href: "#", label: "Privacy" },
-      { href: "#", label: "Terms" },
+      { href: `${REPO}/issues`, label: "Issues" },
+      { href: `${REPO}/discussions`, label: "Discussions" },
+      { href: `${REPO}/pulls`, label: "Pull requests" },
+      { href: "https://github.com/vedantnimbarte/Wingman", label: "Wingman" },
     ],
   },
 ];
 
 export default function Footer() {
   return (
-    <footer className="relative mt-32 border-t border-white/[0.06] bg-gradient-to-b from-ink-950 to-black">
-      <div className="absolute inset-0 blueprint-grid blueprint-fade opacity-30 pointer-events-none" />
-
-      <div className="relative max-w-[1440px] mx-auto px-6 lg:px-10 pt-20 pb-10">
-        {/* Top — wordmark + manifest */}
-        <div className="grid lg:grid-cols-12 gap-12 pb-16 border-b border-white/[0.06]">
-          <div className="lg:col-span-5">
-            <div className="font-serif text-[42px] md:text-[56px] leading-[0.95] tracking-tight">
-              <span className="metal-text-static">ARC</span>
-              <span className="italic text-silver-400"> — </span>
-              <span className="text-silver-100">
-                the
-                <br />
-                <em className="italic font-medium">operating layer</em>
-                <br />
-                for developers.
-              </span>
-            </div>
-            <p className="mt-6 max-w-md text-silver-400 text-[15px] leading-relaxed">
-              Terminal, editor, agents, memory, and orchestration — unified into a single
-              intelligent runtime. Engineered for the next decade of software.
+    <footer className="relative border-t border-edge-hair">
+      <div className="mx-auto max-w-frame px-6 pb-10 pt-20 lg:px-10">
+        <div className="grid gap-12 border-b border-edge-hair pb-14 lg:grid-cols-[1.2fr_1.6fr]">
+          <div>
+            <p className="display max-w-[18ch] text-[28px] leading-[1.15] tracking-[-0.03em]">
+              A terminal, an editor and your git history — in one window.
             </p>
-
-            <div className="mt-8 flex items-center gap-3 text-[11px] font-mono uppercase tracking-wider-mono text-silver-500">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
-              <span>All systems operational</span>
-              <span className="mx-2 text-silver-700">·</span>
-              <span>p99 18ms</span>
-            </div>
+            <p className="mt-5 max-w-md text-[14.5px] leading-relaxed text-fg-muted">
+              Open source, built with Tauri and Rust. Free for anyone, forever,
+              because there is nothing to sell.
+            </p>
           </div>
 
-          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {columns.map((col) => (
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {COLUMNS.map((col) => (
               <div key={col.title}>
-                <div className="text-[11px] font-mono uppercase tracking-wider-mono text-silver-500 mb-4">
-                  {col.title}
-                </div>
+                <p className="label mb-4">{col.title}</p>
                 <ul className="space-y-2.5">
                   {col.links.map((l) => (
                     <li key={l.label}>
                       <Link
                         href={l.href}
-                        className="text-[14px] text-silver-200 hover:text-white transition-colors"
+                        className="text-[14px] text-fg-muted transition-colors hover:text-fg"
                       >
                         {l.label}
                       </Link>
@@ -99,27 +67,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom — version / legal strip */}
-        <div className="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-mono uppercase tracking-wider-mono text-silver-500">
-            <span>ARC SYSTEMS · 2026</span>
-            <span className="text-silver-700">/</span>
-            <span>BUILD 8a7c9d2f</span>
-            <span className="text-silver-700">/</span>
-            <span>RUNTIME v0.4.2</span>
-            <span className="text-silver-700">/</span>
-            <span>NODE us-east-1</span>
-          </div>
-          <div className="text-[11px] font-mono uppercase tracking-wider-mono text-silver-500">
-            Engineered in the open. Signed and verified.
-          </div>
-        </div>
-
-        {/* huge wordmark — editorial sign-off */}
-        <div className="mt-16 select-none">
-          <div className="font-serif text-[clamp(5rem,18vw,16rem)] leading-[0.8] tracking-tighter metal-text-static opacity-[0.08]">
-            ARC
-          </div>
+        <div className="flex flex-col gap-3 pt-7 sm:flex-row sm:items-center sm:justify-between">
+          <p className="label">
+            v{VERSION} · released {RELEASED} · MIT
+          </p>
+          <p className="label">Built in the open</p>
         </div>
       </div>
     </footer>

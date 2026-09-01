@@ -1,23 +1,21 @@
 import Hero from "@/sections/Hero";
-import Trust from "@/sections/Trust";
-import FeatureGrid from "@/sections/FeatureGrid";
+import BuiltOn from "@/sections/BuiltOn";
+import Capabilities from "@/sections/Capabilities";
+import TheWindow from "@/sections/TheWindow";
 import Architecture from "@/sections/Architecture";
-import Showcase from "@/sections/Showcase";
-import Benchmarks from "@/sections/Benchmarks";
-import Testimonials from "@/sections/Testimonials";
-import CTASection from "@/sections/CTASection";
+import InTheOpen from "@/sections/InTheOpen";
+import Close from "@/sections/Close";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Trust />
-      <FeatureGrid />
+      <BuiltOn />
+      <Capabilities />
+      <TheWindow />
       <Architecture />
-      <Showcase />
-      <Benchmarks />
-      <Testimonials />
-      <CTASection />
+      <InTheOpen />
+      <Close />
     </>
   );
 }

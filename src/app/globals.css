@@ -2,313 +2,271 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ────────────────────────────────────────────────────────────────
-   ARC // DESIGN TOKENS
-   ──────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   ARC — surfaces borrowed from the app's own dark theme, lit from above.
+   ═══════════════════════════════════════════════════════════════════ */
+
 :root {
-  --ink-950: #050505;
-  --ink-900: #0A0A0A;
-  --ink-800: #0D0D0D;
-  --ink-700: #111111;
-  --ink-600: #181818;
-  --ink-500: #1F1F1F;
-  --ink-400: #2B2B2B;
-  --silver-50: #F5F5F5;
-  --silver-100: #E8E8E8;
-  --silver-200: #D6D6D6;
-  --silver-300: #C0C0C0;
-  --silver-400: #9A9A9A;
-  --silver-500: #8A8A8A;
-  --silver-700: #4A4A4A;
+  --void: #08080a;
+  --base: #161618;
+  --chrome: #222224;
+  --panel: #28282a;
+  --raised: #323236;
+  --fg: #eef0f3;
+  --fg-muted: rgba(230, 234, 242, 0.68);
+  --fg-subtle: rgba(230, 234, 242, 0.46);
+  --accent: #c8cad0;
+  --live: #5bd68c;
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
+  background: var(--void);
   scroll-behavior: smooth;
-  background: var(--ink-950);
+  -webkit-text-size-adjust: 100%;
+  /* `clip`, not `hidden` — `hidden` would turn the element into a scroll
+     container and break `position: sticky` measurement inside it. */
+  overflow-x: clip;
 }
 
 body {
-  background-color: var(--ink-950);
-  color: var(--silver-50);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-feature-settings: 'ss01', 'ss02', 'cv11';
+  background: var(--void);
+  color: var(--fg);
+  font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  overflow-x: hidden;
 }
 
 ::selection {
-  background: rgba(245, 245, 245, 0.92);
-  color: var(--ink-950);
+  background: var(--fg);
+  color: var(--void);
 }
 
-/* ────────────────────────────────────────────────────────────────
-   GRAIN OVERLAY — applied site-wide
-   ──────────────────────────────────────────────────────────────── */
-.grain::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+/* Focus is never removed, only restyled — keyboard users need to see it. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* ────────────────────────────────────────────────────────────────
-   BLUEPRINT GRID — subtle technical reference lines
-   ──────────────────────────────────────────────────────────────── */
-.blueprint-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 80px 80px;
+/* ─── Type roles ──────────────────────────────────────────────────── */
+
+.display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 600;
+  font-stretch: 112%;
+  text-wrap: balance;
 }
 
-.blueprint-fade {
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
+.label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--fg-subtle);
 }
 
-/* ────────────────────────────────────────────────────────────────
-   METALLIC TEXT — animated brushed-metal gradient fill
-   ──────────────────────────────────────────────────────────────── */
-.metal-text {
-  background: linear-gradient(
-    110deg,
-    #7a7a7a 0%,
-    #d6d6d6 30%,
-    #ffffff 50%,
-    #d6d6d6 70%,
-    #7a7a7a 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: shimmer 8s linear infinite;
+/* ─── Reveal on scroll ────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.9s var(--ease-soft),
+    transform 0.9s var(--ease-soft);
+}
+.reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
 }
 
-.metal-text-static {
-  background: linear-gradient(135deg, #f0f0f0 0%, #b0b0b0 40%, #f5f5f5 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
+/* ─── Surfaces ────────────────────────────────────────────────────── */
 
-/* ────────────────────────────────────────────────────────────────
-   METALLIC BORDER — 1px gradient ring used on cards
-   ──────────────────────────────────────────────────────────────── */
-.metal-border {
+/* A panel lit from the top-left, the way every window in the 3D scene is. */
+.surface {
   position: relative;
-  background: linear-gradient(180deg, #0F0F0F 0%, #0A0A0A 100%);
-  border-radius: 1.25rem;
+  background: linear-gradient(168deg, #1c1c1f 0%, #131315 62%, #0e0e10 100%);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+    0 24px 48px -28px rgba(0, 0, 0, 0.9);
+  transition:
+    transform 0.6s var(--ease-soft),
+    box-shadow 0.6s var(--ease-soft);
 }
-.metal-border::before {
-  content: "";
+
+.surface-hover:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
+    0 36px 64px -32px rgba(0, 0, 0, 0.95);
+}
+
+/* Cards that tilt very slightly toward the cursor. Subtle on purpose —
+   the hero owns the depth, everything else only hints at it. */
+.tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-soft);
+}
+.tilt-scene {
+  perspective: 1400px;
+}
+
+/* ─── Ambient light ───────────────────────────────────────────────── */
+
+.wash {
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    140deg,
-    rgba(220, 220, 220, 0.4) 0%,
-    rgba(80, 80, 80, 0.15) 30%,
-    rgba(40, 40, 40, 0.1) 60%,
-    rgba(180, 180, 180, 0.3) 100%
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+  border-radius: 9999px;
   pointer-events: none;
-  transition: opacity 0.5s ease;
+  filter: blur(60px);
 }
-.metal-border:hover::before {
+
+.hairline {
+  height: 1px;
   background: linear-gradient(
-    140deg,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(120, 120, 120, 0.2) 30%,
-    rgba(60, 60, 60, 0.15) 60%,
-    rgba(240, 240, 240, 0.5) 100%
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.09) 15%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.09) 85%,
+    transparent
   );
 }
 
-/* corner accents on cards */
-.corner-accents > span {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(192, 192, 192, 0.35);
-  pointer-events: none;
-}
+/* ─── Controls ────────────────────────────────────────────────────── */
 
-/* ────────────────────────────────────────────────────────────────
-   TERMINAL BLOCK
-   ──────────────────────────────────────────────────────────────── */
-.terminal-glass {
-  background:
-    linear-gradient(180deg, rgba(20, 20, 20, 0.7) 0%, rgba(8, 8, 8, 0.9) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.scanline {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.04) 50%,
-    transparent 100%
-  );
-  height: 30%;
-  pointer-events: none;
-  animation: scanline 6s linear infinite;
-}
-
-/* ────────────────────────────────────────────────────────────────
-   MARQUEE
-   ──────────────────────────────────────────────────────────────── */
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 50s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
-/* ────────────────────────────────────────────────────────────────
-   BUTTONS
-   ──────────────────────────────────────────────────────────────── */
-.btn-metal {
-  position: relative;
-  background: linear-gradient(180deg, #ECECEC 0%, #B5B5B5 100%);
-  color: #0a0a0a;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: -0.005em;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    0 1px 0 rgba(0, 0, 0, 0.4),
-    0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.006em;
+  padding: 0.8rem 1.35rem;
+  transition: all 0.45s var(--ease-soft);
+  white-space: nowrap;
 }
-.btn-metal:hover {
-  background: linear-gradient(180deg, #FFFFFF 0%, #C8C8C8 100%);
-  transform: translateY(-1px);
+
+.btn-primary {
+  background: linear-gradient(180deg, #f4f5f7 0%, #c6c8cd 100%);
+  color: #0c0c0e;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    0 1px 0 rgba(0, 0, 0, 0.4),
-    0 16px 36px -10px rgba(220, 220, 220, 0.2);
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(0, 0, 0, 0.5),
+    0 14px 30px -14px rgba(200, 202, 208, 0.35);
 }
-.btn-metal:active {
+.btn-primary:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #d8dade 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 0 rgba(0, 0, 0, 0.5),
+    0 22px 44px -16px rgba(200, 202, 208, 0.45);
+}
+.btn-primary:active {
   transform: translateY(0);
 }
 
-.btn-ghost {
-  background: rgba(255, 255, 255, 0.02);
+.btn-quiet {
+  background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--silver-100);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(8px);
+  color: var(--fg);
+  backdrop-filter: blur(10px);
 }
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.05);
+.btn-quiet:hover {
+  background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  transform: translateY(-2px);
 }
 
-/* ────────────────────────────────────────────────────────────────
-   DECORATIVE — section dividers
-   ──────────────────────────────────────────────────────────────── */
-.rule {
-  background: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(192, 192, 192, 0.2) 20%,
-    rgba(192, 192, 192, 0.4) 50%,
-    rgba(192, 192, 192, 0.2) 80%,
-    transparent 100%
-  );
-  height: 1px;
-}
+/* ─── Nav ─────────────────────────────────────────────────────────── */
 
-/* glow underline appears under hovered nav links */
 .nav-link {
   position: relative;
-  color: var(--silver-200);
-  transition: color 0.3s;
+  color: var(--fg-muted);
+  transition: color 0.4s var(--ease-soft);
 }
 .nav-link::after {
   content: "";
   position: absolute;
-  bottom: -4px;
-  left: 50%;
-  width: 0;
+  left: 0;
+  right: 0;
+  bottom: -6px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--silver-100), transparent);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  transform: translateX(-50%);
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-soft);
 }
-.nav-link:hover {
-  color: white;
+.nav-link:hover,
+.nav-link[data-active="true"] {
+  color: var(--fg);
 }
-.nav-link:hover::after {
-  width: 100%;
+.nav-link:hover::after,
+.nav-link[data-active="true"]::after {
+  transform: scaleX(1);
 }
 
-/* ────────────────────────────────────────────────────────────────
-   SCROLLBAR
-   ──────────────────────────────────────────────────────────────── */
+/* ─── App chrome recreations ──────────────────────────────────────── */
+/* These render ARC's real panels — file tree, editor, terminal, source
+   control — in DOM so they stay crisp at any zoom inside the 3D scene. */
+
+.app-window {
+  background: var(--base);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.app-chrome {
+  background: var(--chrome);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.app-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--ink-900);
+  background: var(--void);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
-  border-radius: 5px;
-  border: 2px solid var(--ink-900);
+  background: #2c2c30;
+  border-radius: 6px;
+  border: 3px solid var(--void);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #5a5a5a, #2f2f2f);
+  background: #3d3d42;
 }
 
-/* ────────────────────────────────────────────────────────────────
-   ANIMATIONS — used by inline classes
-   ──────────────────────────────────────────────────────────────── */
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 192, 192, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(192, 192, 192, 0); }
-}
+/* ─── Reduced motion ──────────────────────────────────────────────── */
 
-@keyframes typewriter {
-  from { width: 0 }
-  to { width: 100% }
-}
-
-.typewriter {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 2px solid var(--silver-200);
-  animation: typewriter 2s steps(40) 1s 1 normal both, blink 1s steps(2) infinite;
-}
-
-/* reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001s !important;
-    transition-duration: 0.001s !important;
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

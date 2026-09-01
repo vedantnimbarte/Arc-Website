@@ -1,245 +1,161 @@
 import Link from "next/link";
+import { Reveal } from "@/components/Section";
+import { REPO, VERSION } from "@/lib/arc";
 
 export const metadata = {
-  title: "Features — ARC",
-  description: "Deep dive into ARC's terminal, AI runtime, editor, memory, MCP, and git intelligence.",
+  title: "Features",
+  description: `Everything ARC v${VERSION} ships: PTY terminal, CodeMirror editor, git, SSH, databases, REST client, problems panel, test explorer and containers.`,
 };
 
-type Block = {
-  index: string;
-  eyebrow: string;
-  title: string;
-  description: string;
-  bullets: { label: string; detail: string }[];
-  specs: [string, string][];
-};
-
-const BLOCKS: Block[] = [
+/** Grouped exactly as the app groups them, so the page maps onto the UI. */
+const GROUPS = [
   {
-    index: "01",
-    eyebrow: "Surface · Terminal",
-    title: "A terminal that streams thought, not just text.",
-    description:
-      "ARC's terminal is a real PTY — not a shim. It runs your shell of choice with native ANSI, sixel, and 60fps redraw. Then it adds intelligence: a palette that explains output, a coach that recovers from errors, and agents that act on what you see.",
-    bullets: [
-      { label: "PTY-backed runtime", detail: "Real teletype semantics. Your tools work as expected." },
-      { label: "Multi-shell", detail: "zsh, bash, fish, pwsh — selected per workspace." },
-      { label: "Streaming", detail: "60fps even under heavy stdout. Backpressure handled." },
-      { label: "ANSI + sixel", detail: "Full color, images in terminal, true-color throughout." },
-    ],
-    specs: [
-      ["Renderer", "GPU-accelerated"],
-      ["Latency", "≤2 frames"],
-      ["Shells", "4 native · 12 detected"],
-      ["Sessions", "∞ tabs · ∞ splits"],
+    name: "Terminal",
+    intro: "xterm.js over portable-pty. A real shell, not an emulation of one.",
+    items: [
+      ["Shells", "bash, zsh, PowerShell, cmd, Nu, WSL, or a custom binary"],
+      ["Rendering", "GPU (WebGL) rendering with a find bar on ⌘F / Ctrl+Shift+F"],
+      ["Profiles", "Named shell + args + cwd + env, saved and reusable"],
+      ["Scrollback", "Survives a relaunch; per-tab command history via OSC 133"],
+      ["Safety", "Smart-paste warnings and long-command notifications"],
+      ["Links", "File paths in output are clickable and open in the editor"],
     ],
   },
   {
-    index: "02",
-    eyebrow: "Runtime · AI",
-    title: "An orchestrator that routes intelligently.",
-    description:
-      "The AI runtime is the heart of ARC. It manages providers, tokens, context windows, and tool calls — and it routes work to the model best suited for it. Long context? Claude. Cheap autocomplete? local. Codegen at scale? GPT.",
-    bullets: [
-      { label: "Provider matrix", detail: "OpenAI, Anthropic, Google, Mistral, Ollama, vLLM." },
-      { label: "Streaming everywhere", detail: "Tokens, tool calls, deltas — all backpressured." },
-      { label: "Context windowing", detail: "Adaptive RAG, compaction, recency weighting." },
-      { label: "Routing", detail: "Per-task model selection via policy or prompt." },
-    ],
-    specs: [
-      ["Providers", "9 first-party"],
-      ["Max context", "200K tokens"],
-      ["Throughput", "12.4k tok/s"],
-      ["P99 latency", "18ms"],
+    name: "Editor",
+    intro: "CodeMirror 6, with language services when a server is available.",
+    items: [
+      ["Editing", "Syntax highlighting, multi-cursor, optional Vim mode"],
+      ["LSP", "Diagnostics, hover, completion, go-to-definition, find references"],
+      ["Refactoring", "Rename across the workspace, and format-on-save"],
+      ["Watching", "Real-time file watching, so external edits show up"],
+      ["Scratch buffers", "⇧⌘N opens a throwaway file that still saves and restores"],
     ],
   },
   {
-    index: "03",
-    eyebrow: "Surface · Editor",
-    title: "An editor that pairs with you, not over you.",
-    description:
-      "Built on CodeMirror 6, ARC's editor has full LSP, multi-cursor, persistent undo, and conflict-aware writes. Inline completions stream from the same runtime your agents use — so the suggestions know your repo.",
-    bullets: [
-      { label: "CodeMirror 6", detail: "Tree-sitter syntax, semantic tokens." },
-      { label: "LSP", detail: "70+ languages bundled. Add more in seconds." },
-      { label: "Inline AI", detail: "Streaming completions, ⏎ to accept." },
-      { label: "Conflict-aware", detail: "Optimistic writes that resolve cleanly." },
-    ],
-    specs: [
-      ["Languages", "70+"],
-      ["LSP servers", "auto-detected"],
-      ["Undo depth", "10k"],
-      ["File limit", "unbounded"],
+    name: "Files and search",
+    intro: "A tree that knows what git thinks, and an index that knows what's inside.",
+    items: [
+      ["Tree", "Browse, open and manage files with git status decorations"],
+      ["Search", "BM25 full-text search backed by a tantivy index"],
+      ["Replace", "Literal find-and-replace across the workspace, previewed per file"],
     ],
   },
   {
-    index: "04",
-    eyebrow: "System · Memory",
-    title: "Memory that grows with the workspace.",
-    description:
-      "ARC indexes your code with SQLite FTS5 and augments it with vector embeddings. Search across millions of files in milliseconds. Recall what you were doing yesterday, last week, or last quarter — scoped to project.",
-    bullets: [
-      { label: "FTS5", detail: "Lexical search, 1M files, 2s cold scan." },
-      { label: "Vector recall", detail: "Semantic similarity, on-device by default." },
-      { label: "Workspace memory", detail: "Conversation continuity across sessions." },
-      { label: "Session history", detail: "Full audit, exportable, encrypted at rest." },
-    ],
-    specs: [
-      ["Index", "SQLite FTS5"],
-      ["Embeddings", "BGE / nomic"],
-      ["Scan time", "2.1s · 1M files"],
-      ["Storage", "encrypted · local"],
+    name: "Git",
+    intro: "The source control panel is the home for every git view.",
+    items: [
+      ["Inspect", "Branch status, diffs, logs, blame, tags, remotes, submodules"],
+      ["Commit", "Staging, signing (-S) and sign-off (-s)"],
+      ["Push", "A rejected push offers force-with-lease rather than just failing"],
+      ["Rebase", "Interactive rebase with reword and edit as well as squash, fixup and drop"],
+      ["Recover", "The reflog is browsable, so a bad reset is one click from undone"],
+      ["Bisect", "Name a good and a bad commit, mark each checkout, get the culprit"],
+      ["Conflicts", "Three-way view: take ours, theirs, both, or hand-edit — then it stages"],
+      ["GitHub", "Pull requests from the UI"],
     ],
   },
   {
-    index: "05",
-    eyebrow: "Bridge · MCP",
-    title: "Tools you already trust, agents you can extend.",
-    description:
-      "Model Context Protocol turns any service into a callable tool. ARC ships an MCP bridge that connects to stdio and SSE servers — bring your linters, your databases, your APIs.",
-    bullets: [
-      { label: "MCP 1.0", detail: "stdio and SSE transports supported." },
-      { label: "Multi-server", detail: "Orchestrate tools across many servers." },
-      { label: "Approval gates", detail: "Per-tool, per-call, or never-ask modes." },
-      { label: "Registry", detail: "Browse and install community tools." },
-    ],
-    specs: [
-      ["Servers", "142 listed"],
-      ["Transports", "stdio · sse"],
-      ["Approvals", "6 modes"],
-      ["Audit", "full log"],
+    name: "Remote and data",
+    intro: "Other machines and other databases, without leaving the window.",
+    items: [
+      ["SSH", "Pure-Rust client (russh) with saved hosts, key generation and import"],
+      ["Remote workspaces", "Mount a saved host over SFTP as the workspace root"],
+      ["Databases", "PostgreSQL, MySQL and SQLite: table list, SQL editor, results grid"],
+      ["REST client", "Postman-style collections, environments and history"],
+      ["Credentials", "Passwords go to the OS credential vault, never the database"],
     ],
   },
   {
-    index: "06",
-    eyebrow: "Engine · Git",
-    title: "Git that the agent reads before it writes.",
-    description:
-      "ARC ships libgit2 natively. Diffs, blame, status, log — all instant, all queryable by agents. Your commit messages stop being lies because the agent already knows what changed.",
-    bullets: [
-      { label: "libgit2 native", detail: "No shell-out. No race conditions." },
-      { label: "Diff engine", detail: "Word, line, block — your pick." },
-      { label: "Blame as context", detail: "Agents understand authorship." },
-      { label: "Status streaming", detail: "Live updates as files change." },
+    name: "Project health",
+    intro: "The whole-project answers that per-file language servers can't give.",
+    items: [
+      ["Problems", "Runs tsc, cargo check, ESLint, Ruff and go vet; rows open the line"],
+      ["Tests", "Discovers vitest, jest, pytest, cargo test and go test; runs any of them"],
+      ["Containers", "Docker containers grouped by compose project, with start/stop/restart"],
     ],
-    specs: [
-      ["Backend", "libgit2"],
-      ["Diff modes", "5"],
-      ["Status", "live"],
-      ["Repos", "any size"],
+  },
+  {
+    name: "Making it yours",
+    intro: "Every shortcut is rebindable and every colour is replaceable.",
+    items: [
+      ["Keymaps", "One click swaps the whole set to a VS Code or JetBrains preset"],
+      ["Themes", "Bundled dark and light plus Catppuccin, or import your own"],
+      ["VS Code themes", "Import directly — the text ramp is re-solved to clear WCAG AA"],
+      ["Layout", "Split panes, tab groups, and session state persisted to SQLite"],
+      ["Updates", "Checks on launch, installs in place, minisign-verified"],
+    ],
+  },
+  {
+    name: "Agents, optionally",
+    intro: "None of this is required. ARC ships and runs without any of it.",
+    items: [
+      ["Claude Code", "Drive your installed CLI from a panel, with per-tool approval prompts"],
+      ["Wingman", "Connect a wingman serve daemon for a pilot board and review queue"],
+      ["CLI launcher", "Thirteen agent CLIs open in a terminal tab if they're on your PATH"],
+      ["Agent review", "Snapshots what was already dirty, so you see only what the agent changed"],
     ],
   },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="relative pt-32 pb-20">
-      {/* hero strip */}
-      <section className="relative py-16 border-b border-white/[0.04]">
-        <div className="absolute inset-0 blueprint-grid blueprint-fade opacity-50" />
-        <div className="relative max-w-[1440px] mx-auto px-6 lg:px-10">
-          <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-wider-mono text-silver-500 mb-8">
-            <span className="text-silver-300">§</span>
-            <span className="w-8 h-px bg-silver-700" />
-            <span>FEATURES · 06 SUBSYSTEMS</span>
-          </div>
-          <h1 className="font-serif text-hero tracking-[-0.035em] max-w-4xl">
-            Every layer{" "}
-            <em className="italic font-normal text-silver-300">composable.</em>
-            <br />
-            Every layer <span className="metal-text font-semibold">measurable.</span>
-          </h1>
-          <p className="mt-8 text-silver-400 text-[17px] max-w-xl leading-relaxed">
-            ARC is built like an operating system: composed primitives with clean contracts.
-            Read the spec, hot-swap the parts, ship faster.
-          </p>
-        </div>
-      </section>
-
-      {/* feature blocks */}
-      {BLOCKS.map((b, i) => (
-        <FeatureBlock key={b.index} block={b} flipped={i % 2 === 1} />
-      ))}
-
-      {/* CTA strip */}
-      <section className="relative py-24 border-t border-white/[0.04] mt-12">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-          <div>
-            <div className="text-[11px] font-mono uppercase tracking-wider-mono text-silver-500 mb-3">
-              READY · ⌘ ↓
-            </div>
-            <h2 className="font-serif text-section tracking-tight">
-              Read the spec.{" "}
-              <em className="italic text-silver-400 font-normal">Then run it.</em>
-            </h2>
-          </div>
-          <div className="flex gap-3">
-            <Link href="/docs" className="btn-ghost px-5 py-3 rounded-full text-[14px]">
-              Documentation
-            </Link>
-            <Link href="/download" className="btn-metal px-5 py-3 rounded-full text-[14px]">
-              Download ARC
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function FeatureBlock({ block, flipped }: { block: Block; flipped: boolean }) {
-  return (
-    <section className="relative py-24 border-b border-white/[0.04]">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-10">
-        <div className={`grid lg:grid-cols-12 gap-10 items-start ${flipped ? "lg:[direction:rtl]" : ""}`}>
-          {/* left text */}
-          <div className="lg:col-span-7 [direction:ltr]">
-            <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-wider-mono text-silver-500 mb-4">
-              <span className="text-silver-300">§ {block.index}</span>
-              <span className="w-8 h-px bg-silver-700" />
-              <span>{block.eyebrow}</span>
-            </div>
-            <h2 className="font-serif text-section tracking-tight max-w-2xl">
-              {block.title}
-            </h2>
-            <p className="mt-5 text-silver-400 text-[16.5px] leading-relaxed max-w-xl">
-              {block.description}
+    <>
+      <section className="pb-16 pt-40">
+        <div className="mx-auto max-w-content px-6 lg:px-10">
+          <Reveal>
+            <p className="label">Features</p>
+            <h1 className="display mt-6 max-w-[18ch] text-display">
+              Everything in v{VERSION}, listed plainly.
+            </h1>
+            <p className="mt-6 max-w-[54ch] text-lead text-fg-muted">
+              No roadmap items mixed in. If it&apos;s on this page it works today —
+              and where it depends on something external, the app says so rather
+              than pretending.
             </p>
-
-            <ul className="mt-10 grid sm:grid-cols-2 gap-x-8 gap-y-5">
-              {block.bullets.map((b) => (
-                <li key={b.label} className="border-l border-silver-700/60 pl-4">
-                  <div className="text-[14px] text-silver-100 font-medium">{b.label}</div>
-                  <div className="text-[13px] text-silver-500 mt-1 leading-relaxed">{b.detail}</div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* right spec card */}
-          <div className="lg:col-span-5 [direction:ltr]">
-            <div className="metal-border p-6 relative">
-              <div className="text-[10px] font-mono uppercase tracking-wider-mono text-silver-500 mb-4 flex items-center justify-between">
-                <span>Spec sheet</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
-              </div>
-              <div className="grid grid-cols-2 gap-px bg-white/[0.05] rounded overflow-hidden">
-                {block.specs.map(([k, v]) => (
-                  <div key={k} className="bg-ink-950 p-4">
-                    <div className="text-[9px] font-mono uppercase tracking-wider-mono text-silver-500">{k}</div>
-                    <div className="font-serif text-[19px] text-silver-100 mt-1">{v}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 pt-5 border-t border-white/[0.06] text-[11px] font-mono uppercase tracking-wider-mono text-silver-500 flex items-center justify-between">
-                <span>verified · 2026-05-14</span>
-                <Link href="/docs" className="text-silver-200 hover:text-white">read spec →</Link>
-              </div>
-            </div>
-          </div>
+          </Reveal>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="pb-section">
+        <div className="mx-auto max-w-frame px-6 lg:px-10">
+          <div className="space-y-4">
+            {GROUPS.map((g, i) => (
+              <Reveal key={g.name} delay={Math.min(i, 3) * 70}>
+                <article className="surface overflow-hidden">
+                  <header className="flex flex-col gap-2 border-b border-edge-hair px-7 py-6 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
+                    <h2 className="display shrink-0 text-[22px] tracking-[-0.025em]">{g.name}</h2>
+                    <p className="text-[14px] text-fg-muted sm:text-right">{g.intro}</p>
+                  </header>
+                  <dl className="divide-y divide-edge-hair">
+                    {g.items.map(([term, detail]) => (
+                      <div
+                        key={term}
+                        className="grid gap-1 px-7 py-4 sm:grid-cols-[190px_1fr] sm:gap-6"
+                      >
+                        <dt className="label pt-[3px]">{term}</dt>
+                        <dd className="text-[14.5px] leading-relaxed text-fg-muted">{detail}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={120}>
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/download" className="btn btn-primary">
+                Download v{VERSION}
+              </Link>
+              <Link href={REPO} className="btn btn-quiet">
+                Read the source
+                <span aria-hidden>↗</span>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </>
   );
 }

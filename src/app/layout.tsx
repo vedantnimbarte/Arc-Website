@@ -1,79 +1,83 @@
 import type { Metadata } from "next";
-import { Lora, Inter, JetBrains_Mono } from "next/font/google";
+import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { VERSION } from "@/lib/arc";
 
-const lora = Lora({
+/* Archivo carries a width axis, so headlines can run slightly expanded —
+   machined rather than editorial. Inter sets text; JetBrains Mono is the
+   font ARC's own terminal ships with, so it does all the data and labels. */
+const display = Archivo({
   subsets: ["latin"],
-  variable: "--font-lora",
+  variable: "--font-display",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  axes: ["wdth"],
 });
 
-const inter = Inter({
+const body = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-body",
   display: "swap",
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500", "600"],
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "ARC — AI-Native Terminal for Modern Engineering",
+  metadataBase: new URL("https://arc.dev"),
+  title: {
+    default: "ARC — a terminal, editor and git workspace",
+    template: "%s — ARC",
+  },
   description:
-    "Terminal, editor, agents, and orchestration — unified into one intelligent runtime. Built for developers who ship at the speed of thought.",
+    "An open-source desktop workspace built on a real PTY. Terminal, editor, git, SSH, databases and a REST client in one window. Built with Tauri, Rust and React. MIT licensed.",
   keywords: [
-    "AI terminal",
-    "AI coding assistant",
-    "AI developer tools",
-    "agent runtime",
-    "AI editor",
-    "terminal for developers",
+    "terminal emulator",
+    "code editor",
+    "git client",
+    "Tauri",
+    "Rust",
+    "developer workspace",
+    "SSH client",
+    "open source",
   ],
-  authors: [{ name: "ARC Systems" }],
   openGraph: {
-    title: "ARC — The AI-Native Operating Layer for Developers",
+    title: "ARC — a terminal, editor and git workspace",
     description:
-      "Terminal, editor, agents, and orchestration — unified into one intelligent runtime.",
+      "Terminal, editor, git, SSH, databases and a REST client in one window. Open source, built with Tauri and Rust.",
     type: "website",
     siteName: "ARC",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ARC — AI-Native Terminal",
-    description:
-      "Terminal, editor, agents, and orchestration — unified into one intelligent runtime.",
+    title: "ARC — a terminal, editor and git workspace",
+    description: "One window for the terminal, the editor and the whole git history. MIT licensed.",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${lora.variable} ${inter.variable} ${mono.variable}`}>
-      <body className="grain antialiased">
-        {/* Edge vertical rails — running mark of the brand */}
-        <div className="pointer-events-none fixed inset-y-0 left-4 z-[60] hidden lg:flex flex-col justify-between text-[10px] font-mono tracking-wider-mono uppercase text-silver-700">
-          <span className="rotate-180 [writing-mode:vertical-rl]">ARC // SYS // v0.4.2</span>
-          <span className="rotate-180 [writing-mode:vertical-rl]">RUNTIME // INDEX</span>
-        </div>
-        <div className="pointer-events-none fixed inset-y-0 right-4 z-[60] hidden lg:flex flex-col justify-between items-end text-[10px] font-mono tracking-wider-mono uppercase text-silver-700">
-          <span className="[writing-mode:vertical-rl]">© 2026 — ENGINEERED IN THE OPEN</span>
-          <span className="[writing-mode:vertical-rl]">BUILD · 8a7c9d2f</span>
-        </div>
-
-        <Navigation />
-        <main className="relative">{children}</main>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${mono.variable}`}
+    >
+      <body className="antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:text-void"
+        >
+          Skip to content
+        </a>
+        <Navigation version={VERSION} />
+        <main id="main" className="relative">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
