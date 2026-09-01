@@ -1,117 +1,105 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { REPO } from "@/lib/arc";
 
-const links = [
+const LINKS = [
   { href: "/features", label: "Features" },
   { href: "/docs", label: "Docs" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/download", label: "Download" },
 ];
 
-export default function Navigation() {
-  const [scrolled, setScrolled] = useState(false);
+export default function Navigation({ version }: { version: string }) {
+  const [lifted, setLifted] = useState(false);
   const [open, setOpen] = useState(false);
+  const path = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setLifted(window.scrollY > 16);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => setOpen(false), [path]);
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out-expo ${
-        scrolled
-          ? "bg-ink-950/70 backdrop-blur-xl border-b border-white/[0.06]"
-          : "bg-transparent border-b border-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-soft ${
+        lifted ? "border-b border-edge-hair bg-void/72 backdrop-blur-xl" : "border-b border-transparent"
       }`}
     >
-      {/* announcement strip — only when at top */}
-      <div
-        className={`overflow-hidden transition-all duration-500 ${
-          scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100"
-        }`}
-      >
-        <div className="flex justify-center items-center gap-3 py-2 text-[11px] font-mono tracking-wider-mono uppercase text-silver-400 border-b border-white/[0.04] bg-black/40">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
-          <span>v0.4.2 — Multi-agent orchestration is live</span>
-          <Link href="/docs" className="text-silver-200 hover:text-white underline-offset-4 hover:underline">
-            Read release →
-          </Link>
-        </div>
-      </div>
-
-      <nav className="max-w-[1440px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-        {/* Logo / wordmark */}
-        <Link href="/" className="group flex items-center gap-3">
-          <Logo />
-          <span className="font-serif text-[22px] tracking-tight leading-none">
-            <span className="metal-text-static">ARC</span>
-          </span>
-          <span className="hidden sm:inline-block text-[10px] font-mono uppercase tracking-wider-mono text-silver-500 border border-silver-700/60 px-1.5 py-0.5 rounded">
-            v0.4.2
+      <nav className="mx-auto flex h-16 max-w-frame items-center justify-between px-6 lg:px-10">
+        <Link href="/" className="flex items-center gap-2.5" aria-label="ARC home">
+          <Mark />
+          <span className="display text-[19px] tracking-[-0.02em]">ARC</span>
+          <span className="label hidden rounded border border-edge-hair px-1.5 py-px sm:inline-block">
+            v{version}
           </span>
         </Link>
 
-        {/* Center links */}
-        <div className="hidden md:flex items-center gap-9 text-[14px]">
-          {links.map((l) => (
-            <Link key={l.href} href={l.href} className="nav-link">
+        <div className="hidden items-center gap-9 text-[14px] md:flex">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="nav-link"
+              data-active={path === l.href}
+            >
               {l.label}
             </Link>
           ))}
         </div>
 
-        {/* Right actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="https://github.com"
-            className="text-[13px] font-mono uppercase tracking-wider-mono text-silver-400 hover:text-white transition-colors"
-          >
+        <div className="hidden items-center gap-4 md:flex">
+          <Link href={REPO} className="label transition-colors hover:text-fg">
             GitHub ↗
           </Link>
-          <Link
-            href="/download"
-            className="btn-metal text-[13px] px-4 py-2 rounded-full"
-          >
+          <Link href="/download" className="btn btn-primary !px-4 !py-2 !text-[13px]">
             Download
           </Link>
         </div>
 
-        {/* Mobile */}
         <button
-          aria-label="Toggle menu"
-          className="md:hidden text-silver-200"
+          type="button"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className="p-1 text-fg md:hidden"
           onClick={() => setOpen((s) => !s)}
         >
-          <div className="space-y-1.5">
-            <span className={`block w-6 h-px bg-current transition-transform ${open ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block w-6 h-px bg-current transition-opacity ${open ? "opacity-0" : ""}`} />
-            <span className={`block w-6 h-px bg-current transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
-          </div>
+          <span className="flex flex-col gap-[5px]">
+            <span
+              className={`block h-px w-5 bg-current transition-transform duration-300 ${
+                open ? "translate-y-[6px] rotate-45" : ""
+              }`}
+            />
+            <span className={`block h-px w-5 bg-current transition-opacity ${open ? "opacity-0" : ""}`} />
+            <span
+              className={`block h-px w-5 bg-current transition-transform duration-300 ${
+                open ? "-translate-y-[6px] -rotate-45" : ""
+              }`}
+            />
+          </span>
         </button>
       </nav>
 
-      {/* Mobile drawer */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-500 bg-ink-950/95 backdrop-blur-xl border-b border-white/[0.06] ${
-          open ? "max-h-96" : "max-h-0"
+        className={`overflow-hidden border-edge-hair bg-void/95 backdrop-blur-xl transition-[max-height,border] duration-500 ease-soft md:hidden ${
+          open ? "max-h-72 border-b" : "max-h-0 border-b-0"
         }`}
       >
-        <div className="px-6 py-5 flex flex-col gap-4 text-[15px]">
-          {links.map((l) => (
-            <Link key={l.href} href={l.href} className="text-silver-100" onClick={() => setOpen(false)}>
+        <div className="flex flex-col gap-4 px-6 py-5 text-[15px]">
+          {LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="text-fg-muted">
               {l.label}
             </Link>
           ))}
-          <Link
-            href="/download"
-            onClick={() => setOpen(false)}
-            className="btn-metal text-[13px] px-4 py-2.5 rounded-full self-start"
-          >
+          <Link href={REPO} className="text-fg-muted">
+            GitHub ↗
+          </Link>
+          <Link href="/download" className="btn btn-primary self-start !py-2 !text-[13px]">
             Download
           </Link>
         </div>
@@ -120,22 +108,25 @@ export default function Navigation() {
   );
 }
 
-function Logo() {
+/** The mark: an arc closing over a terminal caret. */
+function Mark() {
   return (
-    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M3.6 19.2A10 10 0 1 1 20.4 19.2"
+        stroke="url(#arcg)"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <path d="M9 10.4l3 2.6-3 2.6" stroke="#EEF0F3" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13.6 16.2h2.6" stroke="#8B8D95" strokeWidth="1.6" strokeLinecap="round" />
       <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#F5F5F5" />
-          <stop offset="0.5" stopColor="#9A9A9A" />
-          <stop offset="1" stopColor="#F0F0F0" />
+        <linearGradient id="arcg" x1="2" y1="4" x2="22" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F2F3F5" />
+          <stop offset="0.55" stopColor="#8B8D95" />
+          <stop offset="1" stopColor="#EEF0F3" />
         </linearGradient>
       </defs>
-      {/* Arc mark — a refined "A" formed by two arcs meeting at apex */}
-      <path
-        d="M14 3 L25 24 H20.5 L18.5 19.6 H9.5 L7.5 24 H3 L14 3 Z M11.2 15.8 H16.8 L14 9.7 Z"
-        fill="url(#lg)"
-      />
-      <circle cx="14" cy="14" r="13.5" stroke="rgba(192,192,192,0.18)" />
     </svg>
   );
 }
