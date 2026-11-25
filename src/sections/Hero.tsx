@@ -1,150 +1,130 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
-import { REPO, VERSION } from "@/lib/arc";
-import { useReducedMotion, useScrollProgress } from "@/lib/reveal";
+import { REPO, RELEASE_URL, VERSION } from "@/lib/arc";
 import { AssembledWindow } from "@/components/workspace/Panels";
+import { EASE, Stagger, StaggerItem, blurIn } from "@/components/Section";
 
-const HeroScene = dynamic(() => import("@/components/HeroScene"), { ssr: false });
+const SHELLS = ["bash", "zsh", "PowerShell", "cmd", "Nu", "WSL"];
 
-/** Whether the given element is anywhere in the viewport right now. */
-function useOnScreen(ref: React.RefObject<HTMLElement>) {
-  const [on, setOn] = useState(true);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const obs = new IntersectionObserver(([e]) => setOn(e.isIntersecting));
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [ref]);
-  return on;
-}
-
-/** WebGL can be absent (old browser, blocklisted driver, headless). Ask once. */
-function useWebGL() {
-  const [ok, setOk] = useState<boolean | null>(null);
-  useEffect(() => {
-    try {
-      const c = document.createElement("canvas");
-      setOk(Boolean(c.getContext("webgl2") || c.getContext("webgl")));
-    } catch {
-      setOk(false);
-    }
-  }, []);
-  return ok;
-}
-
+/**
+ * One orchestrated entrance: the copy comes into focus line by line, then
+ * ARC's window rises out of the fog. Scrolling lifts the window and lets
+ * the landscape fall behind it.
+ */
 export default function Hero() {
-  const { ref, progress } = useScrollProgress<HTMLDivElement>();
-  const onStage = useOnScreen(ref);
-  const reduced = useReducedMotion();
-  const webgl = useWebGL();
-  const live = useRef(0);
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const photoY = useTransform(scrollYProgress, [0, 1], ["0%", "16%"]);
+  const windowY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
-  // The scene samples this every frame; keep it off React's render path.
-  live.current = progress;
-
-  const spatial = webgl === true && !reduced;
-  const fade = Math.min(1, progress * 2.3);
+  const step = (delay: number) => ({
+    variants: blurIn,
+    initial: "hidden",
+    animate: "shown",
+    custom: delay,
+  });
 
   return (
-    <section ref={ref} className="relative h-[240vh]">
-      <div className="sticky top-0 h-screen overflow-hidden">
-        {/* ── the workspace, filling the stage ─────────────────── */}
-        <div className="absolute inset-0 z-0">
-          {spatial ? (
-            <HeroScene progress={live} active={onStage} />
-          ) : (
-            <StaticWorkspace ready={webgl !== null} />
-          )}
-        </div>
-
-        {/* ambient pool behind the headline — keeps type legible over the slabs */}
+    <section ref={ref} className="px-3 pt-3 sm:px-5 sm:pt-5">
+      <div className="relative isolate overflow-hidden rounded-stage bg-[#d5e0e2] shadow-[0_0_0_1px_rgba(13,15,16,0.05)]">
+        {/* the landscape */}
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{ y: photoY }}
+          initial={{ scale: 1.08, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.8, ease: EASE }}
+        >
+          <Image
+            src="/img/hero-peaks.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[50%_62%]"
+          />
+        </motion.div>
+        {/* fog over the sky, so the type sits on something calm */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[56%] bg-[radial-gradient(ellipse_70%_100%_at_50%_18%,rgba(8,8,10,0.92)_24%,rgba(8,8,10,0.5)_54%,transparent_78%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(244,247,247,0.92)_0%,rgba(244,247,247,0.55)_38%,rgba(244,247,247,0)_70%)]"
         />
 
-        {/* ── copy, in front of the panels ─────────────────────── */}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-[11vh] z-20 px-6 text-center sm:top-[14vh] lg:px-10"
-          style={{
-            opacity: 1 - fade,
-            transform: `translate3d(0, ${-progress * 70}px, 0)`,
-            visibility: fade >= 1 ? "hidden" : "visible",
-          }}
-        >
-          <div className="pointer-events-auto mx-auto max-w-content">
+        <div className="px-5 pt-32 text-center sm:pt-40">
+          <motion.div {...step(0.15)}>
             <Link
-              href={`${REPO}/releases/tag/v${VERSION}`}
-              className="label inline-flex items-center gap-2.5 rounded-full border border-edge-hair bg-white/[0.03] px-3.5 py-1.5 backdrop-blur-md transition-colors hover:border-edge-line hover:text-fg"
+              href={RELEASE_URL}
+              className="inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-1 text-[12.5px] text-fg-muted shadow-[0_0_0_1px_rgba(13,15,16,0.06)] backdrop-blur-md transition-colors hover:text-fg"
             >
-              <span className="inline-block h-1.5 w-1.5 animate-breathe rounded-full bg-live" />
+              <span className="inline-block h-1.5 w-1.5 animate-breathe rounded-full bg-[#2FA866]" />
               v{VERSION} is out
             </Link>
+          </motion.div>
 
-            <h1 className="display mt-6 text-hero">
+          <h1 className="display mx-auto mt-6 text-hero">
+            <motion.span className="block" {...step(0.3)}>
               Your shell, and
-              <br />
+            </motion.span>
+            <motion.span className="block" {...step(0.42)}>
               everything around it.
-            </h1>
+            </motion.span>
+          </h1>
 
-            <p className="mx-auto mt-5 max-w-[42ch] text-lead text-fg-muted sm:mt-6">
-              A desktop workspace built on a real PTY. Terminal, editor, git, SSH,
-              databases and a REST client — one window, no tab-switching.
-            </p>
+          <motion.p className="mx-auto mt-5 max-w-[46ch] text-lead text-fg-muted" {...step(0.6)}>
+            A desktop workspace built on a real PTY. Terminal, editor, git, SSH,
+            databases and a REST client, side by side in one window.
+          </motion.p>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-8">
-              <Link href="/download" className="btn btn-primary">
-                Download for free
-              </Link>
-              <Link href={REPO} className="btn btn-quiet">
-                View source
-                <span aria-hidden>↗</span>
-              </Link>
-            </div>
-          </div>
+          <motion.div className="mt-7 flex flex-wrap items-center justify-center gap-2.5" {...step(0.74)}>
+            <Link href="/download" className="btn btn-primary">
+              Download for free
+            </Link>
+            <Link href={REPO} className="btn btn-quiet">
+              View source
+            </Link>
+          </motion.div>
         </div>
 
-        {/* ── the caption reports what the panels are doing ─────── */}
-        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-void via-void/85 to-transparent pt-14">
-          <div className="mx-auto w-full max-w-frame px-6 pb-6 lg:px-10">
-            <div className="hairline" />
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <span className="label whitespace-nowrap">
-                {progress > 0.74 ? "one window" : progress > 0.3 ? "assembling" : "four panels"}
-              </span>
-              <span className="label hidden truncate sm:block">
-                Tauri 2 · Rust · React · MIT licensed
-              </span>
-              <span className="label whitespace-nowrap">
-                {spatial ? "scroll to assemble" : `arc ${VERSION}`}
-              </span>
-            </div>
-          </div>
+        {/* the window, cut off by the bottom of the stage */}
+        <div className="mt-14 flex h-[clamp(230px,40vw,520px)] justify-center overflow-hidden px-4 sm:mt-16 sm:px-8">
+          {/* outer layer follows the scroll, inner layer does the entrance */}
+          <motion.div aria-hidden className="w-full min-w-[720px] max-w-[1080px]" style={{ y: windowY }}>
+            <motion.div
+              className="window-frame h-[clamp(320px,46vw,640px)]"
+              initial={{ opacity: 0, y: 160 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.4, ease: EASE, delay: 0.85 }}
+            >
+              <AssembledWindow className="rounded-[12px]" />
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-    </section>
-  );
-}
 
-/** Reduced motion, or no WebGL: the same window, already assembled. */
-function StaticWorkspace({ ready }: { ready: boolean }) {
-  return (
-    <div className="tilt-scene absolute inset-x-0 bottom-[6%] top-[46%] flex justify-center px-6">
-      <div
-        className={`w-full max-w-[1120px] transition-opacity duration-700 ${
-          ready ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ transform: "perspective(1600px) rotateX(7deg)" }}
+      {/* what it runs, under the stage */}
+      <Stagger
+        className="mx-auto flex max-w-content flex-wrap items-center justify-center gap-x-7 gap-y-2 px-5 py-8 text-[14px] text-fg-muted"
+        gap={0.06}
       >
-        <div className="surface h-full overflow-hidden rounded-window p-1.5">
-          <AssembledWindow className="rounded-[12px]" />
-        </div>
-      </div>
-    </div>
+        <StaggerItem className="w-full text-center text-[12.5px] text-fg-subtle sm:w-auto">
+          Runs the shell you already use
+        </StaggerItem>
+        {SHELLS.map((s) => (
+          <StaggerItem key={s} className="flex items-center gap-2">
+            <span aria-hidden className="font-mono text-[12px] text-fg-faint">
+              ❯
+            </span>
+            {s}
+          </StaggerItem>
+        ))}
+        <StaggerItem className="text-fg-subtle">or any binary</StaggerItem>
+      </Stagger>
+    </section>
   );
 }

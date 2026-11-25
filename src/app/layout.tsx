@@ -5,14 +5,13 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { VERSION } from "@/lib/arc";
 
-/* Archivo carries a width axis, so headlines can run slightly expanded —
-   machined rather than editorial. Inter sets text; JetBrains Mono is the
-   font ARC's own terminal ships with, so it does all the data and labels. */
+/* Archivo sets the headlines, tight and plain. Inter sets text. JetBrains
+   Mono is the font ARC's own terminal ships with, so it does code and the
+   typed headline in the workspace section. */
 const display = Archivo({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  axes: ["wdth"],
 });
 
 const body = Inter({
@@ -26,7 +25,7 @@ const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
-  weight: ["400", "500"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -70,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:text-void"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-white"
         >
           Skip to content
         </a>

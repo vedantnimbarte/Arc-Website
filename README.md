@@ -3,8 +3,8 @@
 The marketing site for [ARC](https://github.com/vedantnimbarte/Arc), an open-source
 desktop developer workspace built with Tauri and Rust.
 
-Next.js 14 App Router, Tailwind, and a React Three Fiber hero that pulls ARC's four
-panels apart in space and reassembles them into the application as you scroll.
+Next.js 14 App Router, Tailwind and Framer Motion. A pale, misty page with ARC's own
+dark windows set into it; the hero window rises out of a landscape as the page loads.
 
 **Live:** https://arc-website-black.vercel.app
 
@@ -64,32 +64,33 @@ gh release view v0.3.0 --repo vedantnimbarte/Arc \
 ## Structure
 
 ```
+public/img/                 Two Unsplash photos (credits in the footer)
 src/
 ├── app/
 │   ├── layout.tsx          Fonts, metadata, nav + footer shell, skip link
-│   ├── page.tsx            Home — composes the seven sections
-│   ├── globals.css         Design tokens and every non-utility class
+│   ├── template.tsx        Route transition, and MotionConfig for reduced motion
+│   ├── page.tsx            Home — composes the sections below
+│   ├── globals.css         Colour variables and the component classes
 │   ├── features/           Full capability list, grouped as the app groups it
 │   ├── docs/               Getting started, guides, links into the repo
 │   └── download/           Real v0.3.0 release assets
 ├── components/
-│   ├── Navigation.tsx      Fixed header, mobile drawer
+│   ├── Navigation.tsx      Floating header, mobile drawer, the ARC mark
 │   ├── Footer.tsx
-│   ├── Section.tsx         Shared <Section> and <Reveal> primitives
-│   ├── HeroScene.tsx       The WebGL scene (client-only, lazy)
+│   ├── PageHeader.tsx      The landscape header on Features, Docs, Download
+│   ├── Section.tsx         <Section>, <Reveal>, <Stagger> and the blurIn variant
 │   └── workspace/
 │       └── Panels.tsx      ARC's real panels, rebuilt in DOM
 ├── lib/
-│   ├── arc.ts              Every product fact
-│   └── reveal.ts           useReveal, useScrollProgress, useReducedMotion
+│   └── arc.ts              Every product fact
 └── sections/
-    ├── Hero.tsx            The exploded workspace
-    ├── BuiltOn.tsx         The real dependency stack, as a marquee
-    ├── Capabilities.tsx    Nine things that ship today
-    ├── TheWindow.tsx       The assembled window, with region hotspots
+    ├── Hero.tsx            Headline, and the window rising out of the fog
+    ├── OneWorkspace.tsx    "Edit. Run. Commit." typed out, and the branch diagram
+    ├── TheWindow.tsx       The dark band: the window, with region hotspots
+    ├── Capabilities.tsx    Nine things that ship today, each with a line drawing
     ├── Architecture.tsx    The ten crates under rust/
     ├── InTheOpen.tsx       Licence, privacy, signing status
-    └── Close.tsx           Download
+    └── Close.tsx           Download, over the second photo
 ```
 
 ---
@@ -98,124 +99,69 @@ src/
 
 ### Colour
 
-Surfaces are lifted from ARC's own `ARC Dark` theme
-(`apps/frontend/src/themes/index.ts` in the app repo), so the panels rendered here are
-the same greys as the panels in the application.
+The page is a pale, cool fog. ARC's windows keep the app's own `ARC Dark` greys
+(`apps/frontend/src/themes/index.ts` in the app repo), so they read as the real thing
+set into the page.
 
 | Token | Value | Used for |
 |-------|-------|----------|
-| `void` | `#08080A` | Page ground — deliberately *below* the app's own base, so a window reads as a lit object resting on the page |
-| `base` | `#161618` | Panel bodies (ARC `bgBase`) |
-| `chrome` | `#222224` | Title bars (ARC `bgChrome`) |
-| `panel` | `#28282A` | Raised surfaces (ARC `bgPanel`) |
-| `fg` | `#EEF0F3` | Text (ARC `fgBase`), with `muted` / `subtle` / `faint` below it |
-| `accent` | `#C8CAD0` | ARC's own accent silver |
+| `page` | `#EEF1F1` | Page ground |
+| `paper` | `#FFFFFF` | Cards |
+| `ink` | `#0D0F10` | Text, primary buttons, the dark band |
+| `fg` | CSS variable | Text, with `muted` / `subtle` / `faint` below it |
+| `edge` | CSS variable | Hairlines: `hair`, `line`, `lit` |
+| `base` / `chrome` / `panel` | `#161618` / `#222224` / `#28282A` | ARC window surfaces |
 | `live` | `#5BD68C` | **Status only.** Never decoration |
 
-`live`, `warn` and `gone` are semantic. A green dot means something is running; it is
-not there to add colour to a dark page.
+**`fg`, `edge` and `accent` flip.** They're CSS variables set to ink-on-fog in `:root`
+and back to ARC Dark inside `.app-window` and `.on-dark`. That's why `Panels.tsx` uses
+plain `text-fg-muted` and still renders light-on-dark. Put `on-dark` on any dark block
+(the band, code chips) and the text ramp follows. Variable colours don't take Tailwind
+`/alpha` modifiers; use `ink/[0.04]` for tints instead.
 
 ### Type
 
 | Role | Face | Notes |
 |------|------|-------|
-| Display | **Archivo** | Variable, `wdth` axis, set to ~112% width and weight 600 via `.display`. Machined rather than editorial |
+| Display | **Archivo** | Weight 600, tight tracking, via `.display` |
 | Body | **Inter** | 400/500/600 |
-| Labels, data, code | **JetBrains Mono** | The font ARC's own terminal ships with |
+| Code, the typed headline | **JetBrains Mono** | The font ARC's own terminal ships with |
 
 The scale is in `tailwind.config.ts` as `text-hero`, `text-display`, `text-section` and
-`text-lead` — all `clamp()`, so nothing needs a breakpoint to resize.
-
-`.label` is the one-off utility for the uppercase mono eyebrows: 10.5px, `0.16em`
-tracking, `fg-subtle`.
+`text-lead`, all `clamp()`. Section headlines are two lines; the second steps back in
+`fg-subtle` (`<Section title="…" sub="…">`). No uppercase eyebrows.
 
 ### Layout
 
-- `max-w-content` (1240px) for reading columns, `max-w-frame` (1600px) for full-bleed
-- `py-section` — `clamp(6rem, 13vw, 11.5rem)` — is the vertical rhythm between sections
-- Horizontal padding is always `px-6 lg:px-10`
+- Big surfaces (hero, the white diagram card, the dark band, the closing banner) are
+  `rounded-stage` (28px) and sit 12–20px in from the viewport edge
+- Everything else lines up on `max-w-content` (1120px)
+- Cards are `.surface` (white, 20px); illustrations sit in a grey `.well` inside them
 
-### Sections are not numbered
-
-The previous design put `§ 001`, `§ 002` markers on every section. They're gone: those
-sections are a *set*, not a sequence, and numbering claimed an order the content didn't
-have. Numbering survives in exactly one place — the docs getting-started steps, which
-genuinely are ordered.
-
-New sections use the shared primitives:
-
-```tsx
-<Section label="What it does" title="…" aside="…">
-  {cards.map((c, i) => (
-    <Reveal key={c.title} delay={(i % 3) * 90} className="h-full">
-      <Card {...c} />
-    </Reveal>
-  ))}
-</Section>
-```
+Component classes live in `@layer components` in `globals.css`, so a Tailwind utility on
+the same element (`hidden`, `mt-*`) always wins. Keep new ones in there.
 
 ### Motion
 
-There is no animation library. Motion is `useReveal` (one IntersectionObserver) plus
-CSS transitions on a single easing curve, `--ease-soft`.
+Framer Motion, one easing curve (`EASE` in `Section.tsx`, `[0.22, 1, 0.36, 1]`) and one
+signature move: **content comes into focus** — `blur(10px)` and 14px low, to sharp and
+in place. That's the `blurIn` variant, used by `<Reveal>` and `<Stagger>`.
 
-**`useReveal` carries a 1.6s failsafe.** If an observer is slow or never fires, the
-element is shown anyway — content must never be stranded at `opacity: 0` because of a
-missed callback. If you write another reveal mechanism, give it the same guarantee.
+| Where | What |
+|-------|------|
+| Every route | Fades in from a blur (`app/template.tsx`) |
+| Hero | Badge, both headline lines, lead and buttons focus in on a stagger; then the window rises 160px out of the fog. On scroll the window lifts and the photo falls behind |
+| One workspace | Headline types out with a block caret; branches draw out from the centre tile, then dots and labels land |
+| Dark band | Window rises in, and stands up from a 10° tilt as it scrolls into place |
+| Card grids | Cards focus in one after another |
+| Closing banner | Photo parallax, headline focuses in |
 
----
+`<Reveal delay={ms}>` passes its delay through `custom`. Don't set `delay: 0` in a
+variant — it would override a parent's `staggerChildren`.
 
-## The hero scene
-
-ARC's pitch is that four tools live in one window. So the page opens with those four
-panels pulled apart in space, and reassembles them into the application as you scroll.
-
-**The slabs are real geometry** — `RoundedBox` with a physical material, lit by a key
-light from the upper left that matches the light baked into the `.surface` CSS class.
-**The panel faces are DOM**, rendered through drei's `<Html transform>`, so the type
-stays crisp at any zoom instead of turning into a blurry texture.
-
-Panel positions are in world units in `SLABS`. The assembled arrangement tiles into one
-window 6.4 wide by 4.0 tall; the exploded arrangement is a receding fan that leaves the
-centre clear for the headline. `Rig` lerps between them on scroll progress.
-
-### Things that will bite you
-
-**R3F v8 silently never renders inside a `position: sticky` container.** The `<canvas>`
-mounts at the correct pixel size with a live WebGL context, `useFrame` never ticks,
-`onCreated` never fires, and *nothing* draws — not even a `meshBasicMaterial` box at the
-origin. There is no console error and no Next.js overlay. The cause is
-`react-use-measure`, whose default `scroll: true` never resolves a size in that
-position. The fix is one prop:
-
-```tsx
-<Canvas resize={{ scroll: false, debounce: 0 }}>
-```
-
-**`body { overflow-x: hidden }` compounds it** by turning body into a scroll container.
-`globals.css` uses `html { overflow-x: clip }` instead — `clip` doesn't create one.
-Don't change this back.
-
-**Keep the scene outside the `<Suspense>` that wraps `<Environment>`.** If the
-environment map suspends, a boundary around it will hide every sibling in that boundary,
-including the whole scene. Reflections come from `<Lightformer>` children rather than a
-downloaded HDRI, so nothing on the page reaches the network for an asset.
-
-**`HTML_UNIT` is a measured constant.** drei lays `<Html transform>` out in its own
-CSS3D space whose unit isn't the world unit; `31.6` is the empirical ratio between them.
-If faces stop fitting their slabs, re-measure rather than guessing.
-
-### Fallbacks
-
-| Condition | What renders |
-|-----------|--------------|
-| `prefers-reduced-motion: reduce` | `StaticWorkspace` — the same window, already assembled |
-| No WebGL context | `StaticWorkspace` |
-| Hero scrolled off screen | Scene stays mounted, `frameloop="never"` — no wasted GPU |
-| Viewport under 640px | Cluster sits lower; cursor parallax off under 768px |
-
-`three`, `@react-three/fiber` and `@react-three/drei` are loaded via
-`next/dynamic({ ssr: false })`, so they stay out of First Load JS entirely.
+Framer writes its own `transform`, so an element it animates can't also be centred
+with Tailwind's `-translate-x-1/2`: put the translate on a plain wrapper (see
+`OneWorkspace.tsx`).
 
 ---
 
@@ -225,13 +171,14 @@ Meeting these isn't optional in a change:
 
 - Skip link to `#main`, first thing in `<body>`
 - `:focus-visible` is restyled, never removed
-- `prefers-reduced-motion` disables the WebGL scene, the reveals and the card tilt
-- The 3D panel faces are `aria-hidden` — they're decorative duplicates of copy that
-  already exists as text
+- `MotionConfig reducedMotion="user"` drops all movement for visitors who ask; blur and
+  opacity fades still run, and CSS animations are cut to nothing
+- The hero window is `aria-hidden` — it's a decorative duplicate of copy that already
+  exists as text. The typed headline has an `aria-label` with the whole phrase
 - Region hotspots in `TheWindow` are real `<button>`s with labels, driven by focus as
   well as hover
-- The text ramp (`fg` → `muted` → `subtle`) is set by contrast, matching how ARC solves
-  its own themes. `faint` is decorative — don't put real copy in it
+- The text ramp (`fg` → `muted` → `subtle`) is set by contrast. `faint` is decorative —
+  don't put real copy in it
 
 ---
 
@@ -241,11 +188,11 @@ From `npm run build`:
 
 | Route | Size | First Load JS |
 |-------|------|---------------|
-| `/` | 9.01 kB | 103 kB |
-| `/docs`, `/download`, `/features` | 1.19 kB | 95.3 kB |
+| `/` | 16.1 kB | 152 kB |
+| `/docs`, `/download`, `/features` | 0.9 kB | 137 kB |
 
-All routes prerender static. Fonts are self-hosted through `next/font/google`, so
-there's no render-blocking request to a font CDN.
+All routes prerender static. Fonts are self-hosted through `next/font/google`. The two
+photos go through `next/image`, so visitors get resized WebP/AVIF, not the 2400px JPEGs.
 
 ---
 
@@ -256,9 +203,8 @@ npx tsc --noEmit
 npm run build
 ```
 
-Then look at it — at 1440×900 and at 375×812, and with reduced motion on. The hero has
-three distinct states (exploded, assembling, assembled) and two paths (WebGL and
-fallback); a build passing tells you nothing about whether they look right.
+Then look at it — at 1440×900 and at 375×812, and with reduced motion on. Most of the
+page arrives by animation; a passing build tells you nothing about whether it lands.
 
 ---
 

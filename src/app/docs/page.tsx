@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Reveal } from "@/components/Section";
+import { Reveal, Stagger, StaggerItem } from "@/components/Section";
+import PageHeader from "@/components/PageHeader";
 import { REPO, VERSION } from "@/lib/arc";
 
 export const metadata = {
@@ -70,29 +71,19 @@ const REFERENCES = [
 export default function DocsPage() {
   return (
     <>
-      <section className="pb-16 pt-40">
-        <div className="mx-auto max-w-content px-6 lg:px-10">
-          <Reveal>
-            <p className="label">Docs</p>
-            <h1 className="display mt-6 max-w-[16ch] text-display">
-              Running in about a minute.
-            </h1>
-            <p className="mt-6 max-w-[52ch] text-lead text-fg-muted">
-              ARC v{VERSION} needs Node 20+, pnpm 9 and Rust 1.80+ to build, and
-              nothing at all to run.
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader title="Running in about a minute.">
+        ARC v{VERSION} needs Node 20+, pnpm 9 and Rust 1.80+ to build, and
+        nothing at all to run.
+      </PageHeader>
 
       {/* Getting started is a genuine sequence, so these steps are numbered. */}
-      <section className="pb-20">
-        <div className="mx-auto max-w-content px-6 lg:px-10">
-          <div className="space-y-4">
-            {START.map((s, i) => (
-              <Reveal key={s.n} delay={i * 90}>
-                <article className="surface grid gap-5 p-7 sm:grid-cols-[52px_1fr]">
-                  <span className="label pt-1">{s.n}</span>
+      <section className="pb-20 pt-12 sm:pt-16">
+        <div className="mx-auto max-w-content px-5 sm:px-6 lg:px-10">
+          <Stagger className="space-y-3">
+            {START.map((s) => (
+              <StaggerItem key={s.n}>
+                <article className="surface grid gap-4 p-6 sm:grid-cols-[52px_1fr] sm:gap-5 sm:p-7">
+                  <span className="font-mono text-[13px] text-fg-subtle sm:pt-1">{s.n}</span>
                   <div>
                     <h2 className="display text-[20px] tracking-[-0.02em]">{s.title}</h2>
                     <p className="mt-2 max-w-[62ch] text-[14.5px] leading-relaxed text-fg-muted">
@@ -101,45 +92,44 @@ export default function DocsPage() {
                     {s.code && <Code>{s.code}</Code>}
                   </div>
                 </article>
-              </Reveal>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
       <section className="pb-20">
-        <div className="mx-auto max-w-frame px-6 lg:px-10">
+        <div className="mx-auto max-w-content px-5 sm:px-6 lg:px-10">
           <Reveal>
-            <p className="label">Guides</p>
-            <h2 className="display mt-5 text-section">The things people ask next.</h2>
+            <h2 className="display text-section">The things people ask next.</h2>
           </Reveal>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {GUIDES.map((g, i) => (
-              <Reveal key={g.title} delay={(i % 2) * 80} className="h-full">
-                <article className="surface flex h-full flex-col p-7">
+          <Stagger className="mt-8 grid gap-3 md:grid-cols-2">
+            {GUIDES.map((g) => (
+              <StaggerItem key={g.title} className="h-full">
+                <article className="surface flex h-full flex-col p-6 sm:p-7">
                   <h3 className="display text-[18px] tracking-[-0.02em]">{g.title}</h3>
                   <p className="mt-2.5 flex-1 text-[14.5px] leading-relaxed text-fg-muted">
                     {g.body}
                   </p>
                   {g.code && <Code>{g.code}</Code>}
                 </article>
-              </Reveal>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
       <section className="pb-section">
-        <div className="mx-auto max-w-frame px-6 lg:px-10">
+        <div className="mx-auto max-w-content px-5 sm:px-6 lg:px-10">
           <Reveal>
-            <p className="label">In the repository</p>
-            <ul className="surface mt-6 divide-y divide-edge-hair overflow-hidden">
+            <h2 className="display text-section">In the repository</h2>
+            <ul className="surface mt-8 divide-y divide-edge-hair overflow-hidden">
               {REFERENCES.map((r) => (
                 <li key={r.label}>
                   <Link
                     href={r.href}
-                    className="flex items-baseline gap-4 px-7 py-4 transition-colors hover:bg-white/[0.04]"
+                    className="flex items-baseline gap-4 px-6 py-4 transition-colors hover:bg-ink/[0.03] sm:px-7"
                   >
                     <span className="font-mono text-[13.5px] text-fg">{r.label}</span>
                     <span className="text-[13.5px] text-fg-muted">{r.detail}</span>
@@ -159,7 +149,7 @@ export default function DocsPage() {
 
 function Code({ children }: { children: string }) {
   return (
-    <pre className="mt-4 overflow-x-auto rounded-panel border border-edge-hair bg-black/40 px-4 py-3 font-mono text-[12.5px] leading-[1.8] text-fg-muted">
+    <pre className="on-dark mt-4 overflow-x-auto rounded-xl bg-ink px-4 py-3 font-mono text-[12.5px] leading-[1.8] text-fg-muted">
       {children.split("\n").map((line) => (
         <div key={line}>
           <span className="select-none text-fg-faint">$ </span>

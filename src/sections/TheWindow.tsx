@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Reveal } from "@/components/Section";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { EASE, Reveal } from "@/components/Section";
 import { AssembledWindow } from "@/components/workspace/Panels";
 
 /** The four regions of the window, in the order they sit on screen. */
@@ -36,121 +37,92 @@ const REGIONS = [
 export default function TheWindow() {
   const [active, setActive] = useState<string | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState(7);
 
   /* The window lies back slightly and stands up as it scrolls into place. */
-  useEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      return setTilt(0);
-    let frame = 0;
-    const measure = () => {
-      frame = 0;
-      const r = el.getBoundingClientRect();
-      const seen =
-        1 - Math.max(0, Math.min(1, (r.top - 80) / window.innerHeight));
-      setTilt(9 * (1 - seen));
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(measure);
-    };
-    measure();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
+  const { scrollYProgress } = useScroll({ target: frameRef, offset: ["start end", "start 0.25"] });
+  const tilt = useTransform(scrollYProgress, [0, 1], [10, 0]);
 
   const region = REGIONS.find((r) => r.id === active);
 
   return (
-    <section className="py-section">
-      <div className="mx-auto max-w-frame px-6 lg:px-10">
+    <section className="px-3 pt-3 sm:px-5 sm:pt-5">
+      <div className="on-dark mx-auto max-w-[1400px] overflow-hidden rounded-stage bg-ink px-5 pt-14 sm:px-10 sm:pt-20 lg:px-16">
         <Reveal>
-          <p className="label">Assembled</p>
-          <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <h2 className="display max-w-[17ch] text-display">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <h2 className="display max-w-[18ch] text-display lg:max-w-[24ch]">
               This is the whole application.
+              <br />
+              <span className="text-fg-subtle">No second window.</span>
             </h2>
-            <p className="max-w-sm text-[15px] leading-relaxed text-fg-muted">
-              No hidden second window, no separate git app. Point at a region to
-              see what it does.
+            <p className="max-w-[36ch] text-[15px] leading-relaxed text-fg-muted lg:pt-2">
+              No separate git app, no database client on the side. Point at a
+              region of the window to see what it does.
             </p>
           </div>
         </Reveal>
 
-        <Reveal delay={120}>
-          <div ref={frameRef} className="tilt-scene mt-14">
-            <div
-              className="surface overflow-hidden rounded-window p-2 transition-transform duration-300 ease-soft"
-              style={{
-                transform: `perspective(2200px) rotateX(${tilt.toFixed(2)}deg)`,
-              }}
-            >
-              {/* Below ~760px the three columns stop being legible, so the
-                  window scrolls sideways inside its frame instead of shrinking. */}
-              <div className="overflow-x-auto rounded-[12px]">
-                <div className="relative aspect-[16/10] w-full min-w-[760px] overflow-hidden rounded-[12px] sm:aspect-[16/9]">
-                  <AssembledWindow />
+        <motion.div
+          ref={frameRef}
+          className="mt-12 [perspective:2200px] sm:mt-16"
+          initial={{ opacity: 0, y: 80, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } }}
+          viewport={{ once: true, margin: "0px 0px -15% 0px" }}
+          transition={{ duration: 1.1, ease: EASE }}
+        >
+          <motion.div className="window-frame !shadow-none" style={{ rotateX: tilt, transformOrigin: "50% 100%" }}>
+            {/* Below ~760px the three columns stop being legible, so the
+                window scrolls sideways inside its frame instead of shrinking. */}
+            <div className="overflow-x-auto rounded-[12px]">
+              <div className="relative aspect-[16/10] w-full min-w-[760px] overflow-hidden rounded-[12px] sm:aspect-[16/9]">
+                <AssembledWindow />
 
-                  {/* Hotspots sit over the window; each dims everything else. */}
-                  {REGIONS.map((r) => {
-                    const [l, t, w, h] = r.box;
-                    const on = active === r.id;
-                    return (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onMouseEnter={() => setActive(r.id)}
-                        onFocus={() => setActive(r.id)}
-                        onMouseLeave={() => setActive(null)}
-                        onBlur={() => setActive(null)}
-                        aria-label={r.name}
-                        className="absolute transition-all duration-500 ease-soft"
-                        style={{
-                          left: `${l}%`,
-                          top: `${t}%`,
-                          width: `${w}%`,
-                          height: `${h}%`,
-                          background: on
-                            ? "rgba(200,202,208,0.07)"
-                            : "transparent",
-                          boxShadow: on
-                            ? "inset 0 0 0 1px rgba(200,202,208,0.5)"
-                            : "none",
-                          opacity: active && !on ? 0.35 : 1,
-                        }}
+                {/* Hotspots sit over the window; each dims everything else. */}
+                {REGIONS.map((r) => {
+                  const [l, t, w, h] = r.box;
+                  const on = active === r.id;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onMouseEnter={() => setActive(r.id)}
+                      onFocus={() => setActive(r.id)}
+                      onMouseLeave={() => setActive(null)}
+                      onBlur={() => setActive(null)}
+                      aria-label={r.name}
+                      className="absolute transition-all duration-500 ease-soft"
+                      style={{
+                        left: `${l}%`,
+                        top: `${t}%`,
+                        width: `${w}%`,
+                        height: `${h}%`,
+                        background: on ? "rgba(200,202,208,0.07)" : "transparent",
+                        boxShadow: on ? "inset 0 0 0 1px rgba(200,202,208,0.5)" : "none",
+                        opacity: active && !on ? 0.35 : 1,
+                      }}
+                    >
+                      <span
+                        className="absolute left-2 top-2 rounded-md bg-black/80 px-2 py-0.5 text-[12px] text-fg backdrop-blur-sm transition-opacity duration-300"
+                        style={{ opacity: on ? 1 : 0 }}
                       >
-                        <span
-                          className="label absolute left-2 top-2 rounded bg-void/85 px-1.5 py-0.5 backdrop-blur-sm transition-opacity duration-300"
-                          style={{ opacity: on ? 1 : 0, color: "var(--fg)" }}
-                        >
-                          {r.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                        {r.name}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </div>
-        </Reveal>
+          </motion.div>
+        </motion.div>
 
         {/* The caption is one live line rather than four static ones. */}
-        <Reveal delay={200}>
-          <div className="mt-8 flex flex-col gap-3 border-t border-edge-hair pt-5 sm:flex-row sm:items-baseline sm:gap-6">
-            <span className="label shrink-0">
-              {region ? region.name : "Four regions"}
-            </span>
-            <p className="text-[15px] leading-relaxed text-fg-muted">
-              {region
-                ? region.body
-                : "One process, one window, one set of keybindings — all of it rebindable, with VS Code and JetBrains presets a click away."}
-            </p>
-          </div>
-        </Reveal>
+        <div className="flex min-h-[112px] flex-col gap-2 py-8 sm:flex-row sm:items-baseline sm:gap-6">
+          <span className="shrink-0 text-[13px] font-medium text-fg">{region ? region.name : "Four regions"}</span>
+          <p className="text-[14.5px] leading-relaxed text-fg-muted">
+            {region
+              ? region.body
+              : "One process, one window, one set of keybindings, all of it rebindable, with VS Code and JetBrains presets a click away."}
+          </p>
+        </div>
       </div>
     </section>
   );

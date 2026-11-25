@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { REPO, VERSION, RELEASED } from "@/lib/arc";
+import { Mark } from "@/components/Navigation";
 
 const COLUMNS = [
   {
@@ -33,46 +34,51 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-edge-hair">
-      <div className="mx-auto max-w-frame px-6 pb-10 pt-20 lg:px-10">
-        <div className="grid gap-12 border-b border-edge-hair pb-14 lg:grid-cols-[1.2fr_1.6fr]">
-          <div>
-            <p className="display max-w-[18ch] text-[28px] leading-[1.15] tracking-[-0.03em]">
-              A terminal, an editor and your git history — in one window.
-            </p>
-            <p className="mt-5 max-w-md text-[14.5px] leading-relaxed text-fg-muted">
-              Open source, built with Tauri and Rust. Free for anyone, forever,
-              because there is nothing to sell.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-            {COLUMNS.map((col) => (
-              <div key={col.title}>
-                <p className="label mb-4">{col.title}</p>
-                <ul className="space-y-2.5">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <Link
-                        href={l.href}
-                        className="text-[14px] text-fg-muted transition-colors hover:text-fg"
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="label">
-            v{VERSION} · released {RELEASED} · MIT
+    <footer className="mx-auto max-w-content px-5 pb-10 pt-6 sm:px-6 lg:px-10">
+      <div className="grid gap-12 border-t border-edge-line pt-12 lg:grid-cols-[1fr_auto]">
+        <div>
+          <Link href="/" className="inline-flex items-center gap-2" aria-label="ARC home">
+            <Mark size={20} />
+            <span className="display text-[16px] tracking-[-0.02em]">ARC</span>
+          </Link>
+          <p className="mt-3 max-w-[30ch] text-[14px] leading-relaxed text-fg-muted">
+            A terminal, an editor and your git history, in one window.
           </p>
-          <p className="label">Built in the open</p>
         </div>
+
+        <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3">
+          {COLUMNS.map((col) => (
+            <div key={col.title}>
+              <p className="text-[13px] font-medium">{col.title}</p>
+              <ul className="mt-3 space-y-2">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-[13.5px] text-fg-muted transition-colors hover:text-fg">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="label">
+          v{VERSION}, released {RELEASED}. MIT licensed.
+        </p>
+        <p className="label">
+          Photos by{" "}
+          <a href="https://unsplash.com/@asoggetti" className="underline-offset-4 hover:underline">
+            Alessio Soggetti
+          </a>{" "}
+          and{" "}
+          <a href="https://unsplash.com/@inggridkoe" className="underline-offset-4 hover:underline">
+            Inggrid Koe
+          </a>{" "}
+          on Unsplash
+        </p>
       </div>
     </footer>
   );

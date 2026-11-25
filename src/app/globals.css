@@ -3,34 +3,46 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════
-   ARC — surfaces borrowed from the app's own dark theme, lit from above.
+   ARC — a pale fog page with the app's own dark windows set into it.
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  --void: #08080a;
-  --base: #161618;
-  --chrome: #222224;
-  --panel: #28282a;
-  --raised: #323236;
-  --fg: #eef0f3;
-  --fg-muted: rgba(230, 234, 242, 0.68);
-  --fg-subtle: rgba(230, 234, 242, 0.46);
-  --accent: #c8cad0;
-  --live: #5bd68c;
+  --page: #eef1f1;
+  --ink: #0d0f10;
+  --fg: #0d0f10;
+  --fg-muted: rgba(13, 15, 16, 0.66);
+  --fg-subtle: rgba(13, 15, 16, 0.56);
+  --fg-faint: rgba(13, 15, 16, 0.32);
+  --edge-hair: rgba(13, 15, 16, 0.07);
+  --edge-line: rgba(13, 15, 16, 0.12);
+  --edge-lit: rgba(13, 15, 16, 0.24);
+  --accent: #0d0f10;
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ARC Dark — inside the app recreations and the one dark band. */
+.app-window,
+.on-dark {
+  --fg: #eef0f3;
+  --fg-muted: rgba(230, 234, 242, 0.68);
+  --fg-subtle: rgba(230, 234, 242, 0.5);
+  --fg-faint: rgba(230, 234, 242, 0.28);
+  --edge-hair: rgba(255, 255, 255, 0.055);
+  --edge-line: rgba(255, 255, 255, 0.1);
+  --edge-lit: rgba(255, 255, 255, 0.22);
+  --accent: #c8cad0;
+  color: var(--fg);
+}
+
 html {
-  background: var(--void);
+  background: var(--page);
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* `clip`, not `hidden` — `hidden` would turn the element into a scroll
-     container and break `position: sticky` measurement inside it. */
   overflow-x: clip;
 }
 
 body {
-  background: var(--void);
+  background: var(--page);
   color: var(--fg);
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -38,218 +50,147 @@ body {
 }
 
 ::selection {
-  background: var(--fg);
-  color: var(--void);
+  background: var(--ink);
+  color: #fff;
 }
 
 /* Focus is never removed, only restyled — keyboard users need to see it. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* ─── Type roles ──────────────────────────────────────────────────── */
-
-.display {
-  font-family: var(--font-display), system-ui, sans-serif;
-  font-weight: 600;
-  font-stretch: 112%;
-  text-wrap: balance;
-}
-
-.label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--fg-subtle);
-}
-
-/* ─── Reveal on scroll ────────────────────────────────────────────── */
-
-.reveal {
-  opacity: 0;
-  transform: translate3d(0, 22px, 0);
-  transition:
-    opacity 0.9s var(--ease-soft),
-    transform 0.9s var(--ease-soft);
-}
-.reveal[data-shown="true"] {
-  opacity: 1;
-  transform: none;
-}
-
-/* ─── Surfaces ────────────────────────────────────────────────────── */
-
-/* A panel lit from the top-left, the way every window in the 3D scene is. */
-.surface {
-  position: relative;
-  background: linear-gradient(168deg, #1c1c1f 0%, #131315 62%, #0e0e10 100%);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.045),
-    0 24px 48px -28px rgba(0, 0, 0, 0.9);
-  transition:
-    transform 0.6s var(--ease-soft),
-    box-shadow 0.6s var(--ease-soft);
-}
-
-.surface-hover:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
-    0 36px 64px -32px rgba(0, 0, 0, 0.95);
-}
-
-/* Cards that tilt very slightly toward the cursor. Subtle on purpose —
-   the hero owns the depth, everything else only hints at it. */
-.tilt {
-  transform-style: preserve-3d;
-  transition: transform 0.7s var(--ease-soft);
-}
-.tilt-scene {
-  perspective: 1400px;
-}
-
-/* ─── Ambient light ───────────────────────────────────────────────── */
-
-.wash {
-  position: absolute;
-  border-radius: 9999px;
-  pointer-events: none;
-  filter: blur(60px);
-}
-
-.hairline {
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 255, 255, 0.09) 15%,
-    rgba(255, 255, 255, 0.14) 50%,
-    rgba(255, 255, 255, 0.09) 85%,
-    transparent
-  );
-}
-
-/* ─── Controls ────────────────────────────────────────────────────── */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.006em;
-  padding: 0.8rem 1.35rem;
-  transition: all 0.45s var(--ease-soft);
-  white-space: nowrap;
-}
-
-.btn-primary {
-  background: linear-gradient(180deg, #f4f5f7 0%, #c6c8cd 100%);
-  color: #0c0c0e;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 1px 0 rgba(0, 0, 0, 0.5),
-    0 14px 30px -14px rgba(200, 202, 208, 0.35);
-}
-.btn-primary:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #d8dade 100%);
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 1px 0 rgba(0, 0, 0, 0.5),
-    0 22px 44px -16px rgba(200, 202, 208, 0.45);
-}
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-quiet {
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--fg);
-  backdrop-filter: blur(10px);
-}
-.btn-quiet:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* ─── Nav ─────────────────────────────────────────────────────────── */
-
-.nav-link {
-  position: relative;
-  color: var(--fg-muted);
-  transition: color 0.4s var(--ease-soft);
-}
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  height: 1px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s var(--ease-soft);
-}
-.nav-link:hover,
-.nav-link[data-active="true"] {
-  color: var(--fg);
-}
-.nav-link:hover::after,
-.nav-link[data-active="true"]::after {
-  transform: scaleX(1);
-}
-
-/* ─── App chrome recreations ──────────────────────────────────────── */
-/* These render ARC's real panels — file tree, editor, terminal, source
-   control — in DOM so they stay crisp at any zoom inside the 3D scene. */
-
-.app-window {
-  background: var(--base);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
-}
-
-.app-chrome {
-  background: var(--chrome);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.app-mono {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-  line-height: 1.75;
-}
-
-/* ─── Scrollbar ───────────────────────────────────────────────────── */
-
-::-webkit-scrollbar {
-  width: 11px;
-  height: 11px;
-}
-::-webkit-scrollbar-track {
-  background: var(--void);
-}
-::-webkit-scrollbar-thumb {
-  background: #2c2c30;
   border-radius: 6px;
-  border: 3px solid var(--void);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #3d3d42;
+
+/* Component classes live in a layer so Tailwind utilities (hidden, mt-*,
+   rounded-*) on the same element always win. */
+@layer components {
+  /* ─── Type roles ──────────────────────────────────────────────────── */
+
+  .display {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  /* Small supporting text: dates, sizes, file formats. Sentence case. */
+  .label {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--fg-subtle);
+  }
+
+  /* ─── Surfaces ────────────────────────────────────────────────────── */
+
+  /* A white card sitting on the fog. */
+  .surface {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow:
+      0 0 0 1px var(--edge-hair),
+      0 1px 2px rgba(13, 15, 16, 0.04),
+      0 18px 40px -28px rgba(13, 15, 16, 0.22);
+  }
+
+  /* The grey well an illustration sits in, inside a card. */
+  .well {
+    background: linear-gradient(180deg, #e9eeef 0%, #e0e6e7 100%);
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgba(13, 15, 16, 0.04);
+  }
+
+  .hairline {
+    height: 1px;
+    background: var(--edge-hair);
+  }
+
+  /* ─── Controls ────────────────────────────────────────────────────── */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.006em;
+    padding: 0.72rem 1.25rem;
+    transition:
+      background-color 0.3s var(--ease-soft),
+      box-shadow 0.3s var(--ease-soft),
+      transform 0.3s var(--ease-soft);
+    white-space: nowrap;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: #fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 10px 24px -12px rgba(13, 15, 16, 0.6);
+  }
+  .btn-primary:hover {
+    background: #24282b;
+  }
+
+  .btn-quiet {
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--ink);
+    box-shadow:
+      0 0 0 1px rgba(13, 15, 16, 0.08),
+      0 6px 16px -10px rgba(13, 15, 16, 0.3);
+    backdrop-filter: blur(10px);
+  }
+  .btn-quiet:hover {
+    background: #fff;
+  }
+
+  /* ─── Nav ─────────────────────────────────────────────────────────── */
+
+  .nav-link {
+    color: var(--fg-muted);
+    transition: color 0.3s var(--ease-soft);
+  }
+  .nav-link:hover,
+  .nav-link[data-active="true"] {
+    color: var(--fg);
+  }
+
+  /* ─── App chrome recreations ──────────────────────────────────────── */
+
+  .app-window {
+    background: #161618;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  }
+
+  .app-chrome {
+    background: #222224;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .app-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.75;
+  }
+
+  /* A dark window resting on the light page. */
+  .window-frame {
+    border-radius: 18px;
+    padding: 6px;
+    background: linear-gradient(180deg, #2a2b2e 0%, #161618 100%);
+    box-shadow:
+      0 0 0 1px rgba(13, 15, 16, 0.5),
+      0 40px 80px -30px rgba(13, 15, 16, 0.55),
+      0 12px 24px -12px rgba(13, 15, 16, 0.3);
+  }
 }
 
 /* ─── Reduced motion ──────────────────────────────────────────────── */
@@ -264,9 +205,5 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
   }
 }
