@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Reveal } from "@/components/Section";
+import { Reveal, Stagger, StaggerItem } from "@/components/Section";
+import PageHeader from "@/components/PageHeader";
 import { REPO, VERSION } from "@/lib/arc";
 
 export const metadata = {
@@ -101,47 +102,33 @@ const GROUPS = [
 export default function FeaturesPage() {
   return (
     <>
-      <section className="pb-16 pt-40">
-        <div className="mx-auto max-w-content px-6 lg:px-10">
-          <Reveal>
-            <p className="label">Features</p>
-            <h1 className="display mt-6 max-w-[18ch] text-display">
-              Everything in v{VERSION}, listed plainly.
-            </h1>
-            <p className="mt-6 max-w-[54ch] text-lead text-fg-muted">
-              No roadmap items mixed in. If it&apos;s on this page it works today —
-              and where it depends on something external, the app says so rather
-              than pretending.
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader title={<>Everything in v{VERSION}, listed plainly.</>}>
+        No roadmap items mixed in. If it&apos;s on this page it works today, and
+        where it depends on something external, the app says so.
+      </PageHeader>
 
-      <section className="pb-section">
-        <div className="mx-auto max-w-frame px-6 lg:px-10">
-          <div className="space-y-4">
-            {GROUPS.map((g, i) => (
-              <Reveal key={g.name} delay={Math.min(i, 3) * 70}>
+      <section className="pb-section pt-12 sm:pt-16">
+        <div className="mx-auto max-w-content px-5 sm:px-6 lg:px-10">
+          <Stagger className="space-y-3" gap={0.06}>
+            {GROUPS.map((g) => (
+              <StaggerItem key={g.name}>
                 <article className="surface overflow-hidden">
-                  <header className="flex flex-col gap-2 border-b border-edge-hair px-7 py-6 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
-                    <h2 className="display shrink-0 text-[22px] tracking-[-0.025em]">{g.name}</h2>
+                  <header className="flex flex-col gap-2 border-b border-edge-hair px-6 py-5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8 sm:px-7 sm:py-6">
+                    <h2 className="display shrink-0 text-[21px] tracking-[-0.025em]">{g.name}</h2>
                     <p className="text-[14px] text-fg-muted sm:text-right">{g.intro}</p>
                   </header>
                   <dl className="divide-y divide-edge-hair">
                     {g.items.map(([term, detail]) => (
-                      <div
-                        key={term}
-                        className="grid gap-1 px-7 py-4 sm:grid-cols-[190px_1fr] sm:gap-6"
-                      >
-                        <dt className="label pt-[3px]">{term}</dt>
+                      <div key={term} className="grid gap-1 px-6 py-4 sm:grid-cols-[190px_1fr] sm:gap-6 sm:px-7">
+                        <dt className="pt-px text-[13.5px] font-medium">{term}</dt>
                         <dd className="text-[14.5px] leading-relaxed text-fg-muted">{detail}</dd>
                       </div>
                     ))}
                   </dl>
                 </article>
-              </Reveal>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
 
           <Reveal delay={120}>
             <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
@@ -150,7 +137,6 @@ export default function FeaturesPage() {
               </Link>
               <Link href={REPO} className="btn btn-quiet">
                 Read the source
-                <span aria-hidden>↗</span>
               </Link>
             </div>
           </Reveal>

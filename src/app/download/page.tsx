@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Reveal } from "@/components/Section";
+import { Reveal, Stagger, StaggerItem } from "@/components/Section";
+import PageHeader from "@/components/PageHeader";
 import {
   BUILDS,
   DOWNLOAD_BASE,
@@ -24,45 +25,35 @@ const PLATFORMS = [
 export default function DownloadPage() {
   return (
     <>
-      <section className="pb-16 pt-40">
-        <div className="mx-auto max-w-content px-6 lg:px-10">
-          <Reveal>
-            <p className="label">Download</p>
-            <h1 className="display mt-6 max-w-[16ch] text-display">
-              Free, and about 15 MB.
-            </h1>
-            <p className="mt-6 max-w-[52ch] text-lead text-fg-muted">
-              Builds for all three platforms come straight from the v{VERSION} GitHub
-              release, published {RELEASED}.
-            </p>
-          </Reveal>
-        </div>
-      </section>
+      <PageHeader title="Free, and about 15 MB.">
+        Builds for all three platforms come straight from the v{VERSION} GitHub
+        release, published {RELEASED}.
+      </PageHeader>
 
-      <section className="pb-section">
-        <div className="mx-auto max-w-frame px-6 lg:px-10">
-          <div className="grid gap-4 lg:grid-cols-3">
-            {PLATFORMS.map((p, i) => (
-              <Reveal key={p.id} delay={i * 100} className="h-full">
-                <article className="surface flex h-full flex-col p-7">
+      <section className="pb-section pt-12 sm:pt-16">
+        <div className="mx-auto max-w-content px-5 sm:px-6 lg:px-10">
+          <Stagger className="grid gap-3 lg:grid-cols-3" gap={0.1}>
+            {PLATFORMS.map((p) => (
+              <StaggerItem key={p.id} className="h-full">
+                <article className="surface flex h-full flex-col p-6 sm:p-7">
                   <div className="flex items-start justify-between">
-                    <span className="text-fg-subtle">{p.glyph}</span>
+                    <span>{p.glyph}</span>
                     <span className="label">{BUILDS[p.id].length} formats</span>
                   </div>
 
                   <h2 className="display mt-6 text-[24px] tracking-[-0.025em]">{p.name}</h2>
                   <p className="mt-2 text-[13.5px] text-fg-muted">{p.requirement}</p>
 
-                  <ul className="mt-7 flex-1 space-y-px overflow-hidden rounded-panel border border-edge-hair">
+                  <ul className="mt-7 flex-1 divide-y divide-edge-hair overflow-hidden rounded-xl shadow-[0_0_0_1px_var(--edge-line)]">
                     {BUILDS[p.id].map((b, j) => (
                       <li key={b.file}>
                         <a
                           href={`${DOWNLOAD_BASE}/${b.file}`}
-                          className={`flex items-baseline gap-3 px-4 py-3 transition-colors hover:bg-white/[0.05] ${
-                            j === 0 ? "bg-white/[0.03]" : ""
+                          className={`flex items-baseline gap-3 px-4 py-3 transition-colors hover:bg-ink/[0.04] ${
+                            j === 0 ? "bg-ink/[0.025]" : ""
                           }`}
                         >
-                          <span className="text-[14px] text-fg">{b.label}</span>
+                          <span className="text-[14px] font-medium text-fg">{b.label}</span>
                           <span className="label ml-auto shrink-0">{b.size}</span>
                         </a>
                       </li>
@@ -71,16 +62,14 @@ export default function DownloadPage() {
 
                   <p className="label mt-5">{BUILDS[p.id][0].arch}</p>
                 </article>
-              </Reveal>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
 
           <Reveal delay={140}>
-            <div className="surface mt-4 flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between">
+            <div className="surface mt-3 flex flex-col gap-6 p-6 sm:p-7 md:flex-row md:items-center md:justify-between">
               <div className="max-w-xl">
-                <h2 className="display text-[19px] tracking-[-0.02em]">
-                  First run will warn you
-                </h2>
+                <h2 className="text-[16px] font-semibold tracking-[-0.01em]">First run will warn you</h2>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-fg-muted">
                   These installers aren&apos;t OS code-signed yet, so macOS and Windows
                   both flag them. The release notes carry the bypass for each. In-app
@@ -88,25 +77,22 @@ export default function DownloadPage() {
                   the key baked into your build before anything runs.
                 </p>
               </div>
-              <Link href={RELEASE_URL} className="btn btn-quiet shrink-0">
-                Release notes
-                <span aria-hidden>↗</span>
+              <Link href={RELEASE_URL} className="btn btn-quiet shrink-0 self-start md:self-auto">
+                Read the release notes
               </Link>
             </div>
           </Reveal>
 
           <Reveal delay={180}>
-            <div className="surface mt-4 flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between">
+            <div className="surface mt-3 flex flex-col gap-6 p-6 sm:p-7 md:flex-row md:items-center md:justify-between">
               <div className="max-w-xl">
-                <h2 className="display text-[19px] tracking-[-0.02em]">
-                  Or build from source
-                </h2>
+                <h2 className="text-[16px] font-semibold tracking-[-0.01em]">Or build from source</h2>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-fg-muted">
                   Node 20+, pnpm 9 and Rust 1.80+. No signing warning, and you get the
                   branch you want.
                 </p>
               </div>
-              <code className="shrink-0 rounded-panel border border-edge-hair bg-black/40 px-4 py-3 font-mono text-[12.5px] text-fg-muted">
+              <code className="on-dark shrink-0 overflow-x-auto rounded-xl bg-ink px-4 py-3 font-mono text-[12.5px] text-fg-muted">
                 <span className="text-fg-faint">$ </span>pnpm install &amp;&amp; pnpm tauri:dev
               </code>
             </div>

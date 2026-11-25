@@ -15,12 +15,11 @@ export default function Architecture() {
 
   return (
     <Section
-      label="Underneath"
-      title="A Rust workspace with a web front end on top."
+      title="A Rust workspace"
+      sub="with a web front end on top."
       aside="The Tauri shell talks to ten crates over typed invoke calls. Each one owns a subsystem and nothing else."
-      wide
     >
-      <div className="mt-16 grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+      <div className="mt-12 grid gap-4 sm:mt-14 lg:grid-cols-[1.15fr_1fr] lg:gap-6">
         {/* the crate list */}
         <Reveal>
           <ul className="surface divide-y divide-edge-hair overflow-hidden">
@@ -32,7 +31,7 @@ export default function Architecture() {
                   onFocus={() => setActive(i)}
                   onClick={() => setActive(i)}
                   className={`flex w-full items-baseline gap-4 px-6 py-3.5 text-left transition-colors duration-300 ${
-                    active === i ? "bg-white/[0.05]" : "hover:bg-white/[0.025]"
+                    active === i ? "bg-ink/[0.045]" : "hover:bg-ink/[0.025]"
                   }`}
                 >
                   <span
@@ -42,7 +41,7 @@ export default function Architecture() {
                   >
                     {c.name}
                   </span>
-                  <span className="ml-auto hidden text-right text-[13px] text-fg-faint sm:block">
+                  <span className="ml-auto hidden text-right text-[13px] text-fg-subtle sm:block">
                     {c.does}
                   </span>
                 </button>
@@ -55,21 +54,20 @@ export default function Architecture() {
         <Reveal delay={120}>
           <div className="lg:sticky lg:top-28">
             <div className="surface p-8">
-              <p className="label">Crate</p>
-              <p className="display mt-3 text-[26px] tracking-[-0.025em]">{crate.name}</p>
+              <p className="font-mono text-[22px] font-medium tracking-[-0.02em]">{crate.name}</p>
               <p className="mt-3 text-[15px] leading-relaxed text-fg-muted">{crate.does}</p>
               <p className="label mt-6 border-t border-edge-hair pt-4">Built on {crate.built}</p>
             </div>
 
-            <div className="mt-4 grid gap-px overflow-hidden rounded-panel bg-edge-hair">
+            <div className="surface mt-4 grid divide-y divide-edge-hair overflow-hidden">
               {[
                 ["Surface", "React 18 · CodeMirror · xterm.js"],
                 ["Shell", "Tauri 2 · typed invoke and listen"],
                 ["Subsystems", "10 Rust crates"],
                 ["Storage", "SQLite · tantivy index · OS credential vault"],
               ].map(([layer, detail]) => (
-                <div key={layer} className="flex items-baseline gap-4 bg-void px-5 py-3.5">
-                  <span className="label shrink-0 w-[86px]">{layer}</span>
+                <div key={layer} className="flex items-baseline gap-4 px-6 py-3.5">
+                  <span className="w-[86px] shrink-0 text-[13px] font-medium">{layer}</span>
                   <span className="text-[13.5px] text-fg-muted">{detail}</span>
                 </div>
               ))}

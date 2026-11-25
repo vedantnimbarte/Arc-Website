@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Reveal, Section } from "@/components/Section";
+import { Reveal, Section, Stagger, StaggerItem } from "@/components/Section";
 import { REPO, RELEASE_URL, VERSION } from "@/lib/arc";
 
 const FACTS = [
@@ -26,38 +26,38 @@ const FACTS = [
 export default function InTheOpen() {
   return (
     <Section
-      label="In the open"
-      title="Early, honest about it, and yours to read."
+      title="Early, honest about it,"
+      sub="and yours to read."
       aside="ARC is at v0.3.0. Plenty works; some of it is rough. The issue tracker is the accurate roadmap."
     >
-      <div className="mt-16 grid gap-4 md:grid-cols-2">
-        {FACTS.map((f, i) => (
-          <Reveal key={f.head} delay={(i % 2) * 90} className="h-full">
+      <Stagger className="mt-12 grid gap-3 sm:mt-14 md:grid-cols-2">
+        {FACTS.map((f) => (
+          <StaggerItem key={f.head} className="h-full">
             <div className="surface h-full p-7">
-              <h3 className="display text-[19px] tracking-[-0.02em]">{f.head}</h3>
+              <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{f.head}</h3>
               <p className="mt-3 text-[14.5px] leading-relaxed text-fg-muted">{f.body}</p>
               {f.link && (
                 <Link
                   href={f.link.href}
-                  className="label mt-5 inline-block transition-colors hover:text-fg"
+                  className="mt-5 inline-block text-[13.5px] font-medium underline decoration-edge-lit underline-offset-4 transition-colors hover:decoration-current"
                 >
-                  {f.link.label} ↗
+                  {f.link.label}
                 </Link>
               )}
             </div>
-          </Reveal>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       <Reveal delay={140}>
-        <div className="mt-4 surface flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between">
+        <div className="surface mt-3 flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="display text-[19px] tracking-[-0.02em]">Build it yourself</h3>
+            <h3 className="text-[16px] font-semibold tracking-[-0.01em]">Build it yourself</h3>
             <p className="mt-2 text-[14.5px] text-fg-muted">
               Node 20+, pnpm 9 and Rust 1.80+ is the whole prerequisite list.
             </p>
           </div>
-          <code className="shrink-0 rounded-panel border border-edge-hair bg-black/40 px-4 py-3 font-mono text-[12.5px] text-fg-muted">
+          <code className="on-dark shrink-0 rounded-xl bg-ink px-4 py-3 font-mono text-[12.5px] text-fg-muted">
             <span className="text-fg-faint">$ </span>pnpm install && pnpm tauri:dev
           </code>
         </div>

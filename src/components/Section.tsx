@@ -1,45 +1,30 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useReveal } from "@/lib/reveal";
+import { motion, type Variants } from "framer-motion";
+
+/** The page's one easing: quick out of the gate, long settle. */
+export const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Every section opens the same way: a quiet label, a headline, an optional
- * aside. No numbering — these sections are a set, not a sequence, and
- * numbering them would claim an order the content doesn't have.
+ * Out of focus, into focus: the reference's signature move. Content starts
+ * blurred and a few pixels low, then sharpens into place. Blur and opacity
+ * still run under reduced motion (MotionConfig drops only the movement).
  */
-export function Section({
-  label,
-  title,
-  aside,
-  children,
-  className = "",
-  wide = false,
-}: {
-  label: string;
-  title: ReactNode;
-  aside?: ReactNode;
-  children?: ReactNode;
-  className?: string;
-  wide?: boolean;
-}) {
-  return (
-    <section className={`py-section ${className}`}>
-      <div className={`mx-auto px-6 lg:px-10 ${wide ? "max-w-frame" : "max-w-content"}`}>
-        <Reveal>
-          <p className="label">{label}</p>
-          <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <h2 className="display max-w-[19ch] text-display">{title}</h2>
-            {aside && <p className="max-w-sm text-[15px] leading-relaxed text-fg-muted">{aside}</p>}
-          </div>
-        </Reveal>
-        {children}
-      </div>
-    </section>
-  );
-}
+export const blurIn: Variants = {
+  hidden: { opacity: 0, y: 14, filter: "blur(10px)" },
+  // `delay` (seconds) comes in through `custom`. Left unset, a parent's
+  // staggerChildren supplies it — setting 0 here would override the stagger.
+  shown: (delay?: number) => ({
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.9, ease: EASE, ...(delay ? { delay } : {}) },
+    transitionEnd: { filter: "none" },
+  }),
+};
 
-/** Eases its children up into place the first time they come into view. */
+/** Fades its children into focus the first time they come into view. */
 export function Reveal({
   children,
   delay = 0,
@@ -49,15 +34,89 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const { ref, shown } = useReveal();
   return (
-    <div
-      ref={ref}
-      className={`reveal ${className}`}
-      data-shown={shown}
-      style={{ transitionDelay: `${delay}ms` }}
+    <motion.div
+      className={className}
+      variants={blurIn}
+      initial="hidden"
+      whileInView="shown"
+      viewport={{ once: true, margin: "0px 0px -12% 0px" }}
+      custom={delay / 1000}
     >
       {children}
-    </div>
+    </motion.div>
+  );
+}
+
+/** A grid or list whose children come into focus one after another. */
+export function Stagger({
+  children,
+  className = "",
+  gap = 0.08,
+}: {
+  children: ReactNode;
+  className?: string;
+  gap?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="shown"
+      viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+      variants={{ shown: { transition: { staggerChildren: gap } } }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerItem({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div className={className} variants={blurIn}>
+      {children}
+    </motion.div>
+  );
+}
+
+/**
+ * Every section opens the same way: a two-line headline whose second line
+ * steps back in grey, and an optional aside on the right.
+ */
+export function Section({
+  title,
+  sub,
+  aside,
+  children,
+  className = "",
+  wide = false,
+}: {
+  title: ReactNode;
+  sub?: ReactNode;
+  aside?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+  wide?: boolean;
+}) {
+  return (
+    <section className={`py-section ${className}`}>
+      <div className={`mx-auto px-5 sm:px-6 lg:px-10 ${wide ? "max-w-frame" : "max-w-content"}`}>
+        <Reveal>
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <h2 className="display max-w-[20ch] text-display">
+              {title}
+              {sub && (
+                <>
+                  <br />
+                  <span className="text-fg-subtle">{sub}</span>
+                </>
+              )}
+            </h2>
+            {aside && <p className="max-w-[34ch] text-[15px] leading-relaxed text-fg-muted">{aside}</p>}
+          </div>
+        </Reveal>
+        {children}
+      </div>
+    </section>
   );
 }
